@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from 'react';
 import {
   AppBar,
   Avatar,
@@ -17,67 +17,66 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from '@mui/material'
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import MenuIcon from '@mui/icons-material/Menu'
-import SearchIcon from '@mui/icons-material/Search'
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+} from '@mui/material';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { selectLoggedInUser } from '../../auth/AuthSlice'
-import { selectCartItems } from '../../cart/CartSlice'
-import { selectProductIsFilterOpen, toggleFilters } from '../../products/ProductSlice'
-import { selectUserInfo } from '../../user/UserSlice'
-import { selectWishlistItems } from '../../wishlist/WishlistSlice'
+import { selectLoggedInUser } from '../../auth/AuthSlice';
+import { selectCartItems } from '../../cart/CartSlice';
+import { selectProductIsFilterOpen, toggleFilters } from '../../products/ProductSlice';
+import { selectUserInfo } from '../../user/UserSlice';
+import { selectWishlistItems } from '../../wishlist/WishlistSlice';
 
 export const Navbar = ({ isProductList = false }) => {
-  const [anchorElUser, setAnchorElUser] = React.useState(null)
-  const [search, setSearch] = React.useState('')
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [search, setSearch] = React.useState('');
 
-  const userInfo = useSelector(selectUserInfo)
-  const cartItems = useSelector(selectCartItems)
-  const wishlistItems = useSelector(selectWishlistItems)
-  const loggedInUser = useSelector(selectLoggedInUser)
-  const isProductFilterOpen = useSelector(selectProductIsFilterOpen)
+  const userInfo = useSelector(selectUserInfo);
+  const cartItems = useSelector(selectCartItems);
+  const rawWishlistItems = useSelector(selectWishlistItems);
+  const wishlistItems = rawWishlistItems?.filter((item) => item?.product !== null) || [];
+  const loggedInUser = useSelector(selectLoggedInUser);
+  const isProductFilterOpen = useSelector(selectProductIsFilterOpen);
 
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   React.useEffect(() => {
-    const keyword = new URLSearchParams(location.search).get('search') || ''
-    setSearch(keyword)
-  }, [location.search])
+    const keyword = new URLSearchParams(location.search).get('search') || '';
+    setSearch(keyword);
+  }, [location.search]);
 
-  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget)
-  const handleCloseUserMenu = () => setAnchorElUser(null)
+  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const menuItems = loggedInUser?.isAdmin
     ? [
         { label: 'Dashboard', to: '/admin/dashboard' },
-        { label: 'Cua hang', to: '/' },
-        { label: 'Dang xuat', to: '/logout', dividerBefore: true },
+        { label: 'Cửa hàng', to: '/' },
+        { label: 'Đăng xuất', to: '/logout', dividerBefore: true },
       ]
     : [
-        { label: 'Trang chu', to: '/' },
-        { label: 'Tai khoan', to: '/profile' },
-        { label: 'Don cua toi', to: '/orders' },
-        { label: 'Dang xuat', to: '/logout', dividerBefore: true },
-      ]
+        { label: 'Trang chủ', to: '/' },
+        { label: 'Tài khoản', to: '/profile' },
+        { label: 'Đơn của tôi', to: '/orders' },
+        { label: 'Đăng xuất', to: '/logout', dividerBefore: true },
+      ];
 
   const handleSearchNavigate = () => {
-    const trimmedSearch = search.trim()
-
+    const trimmedSearch = search.trim();
     if (!trimmedSearch) {
-      navigate('/products')
-      return
+      navigate('/products');
+      return;
     }
-
-    navigate(`/products?search=${encodeURIComponent(trimmedSearch)}`)
-  }
+    navigate(`/products?search=${encodeURIComponent(trimmedSearch)}`);
+  };
 
   return (
     <AppBar
@@ -118,12 +117,12 @@ export const Navbar = ({ isProductList = false }) => {
           {!isMobile && (
             <TextField
               size="small"
-              placeholder="Tim san pham..."
+              placeholder="Tìm sản phẩm..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
-                  handleSearchNavigate()
+                  handleSearchNavigate();
                 }
               }}
               sx={{ width: 320 }}
@@ -146,7 +145,7 @@ export const Navbar = ({ isProductList = false }) => {
           )}
 
           {!loggedInUser?.isAdmin && (
-            <>
+            <Stack direction="row" spacing={1.5}>
               <Badge badgeContent={wishlistItems?.length} color="error">
                 <IconButton component={Link} to="/wishlist">
                   <FavoriteBorderIcon />
@@ -158,11 +157,11 @@ export const Navbar = ({ isProductList = false }) => {
                   <ShoppingCartOutlinedIcon />
                 </IconButton>
               </Badge>
-            </>
+            </Stack>
           )}
 
           {loggedInUser && userInfo ? (
-            <Tooltip title="Tai khoan">
+            <Tooltip title="Tài khoản">
               <IconButton onClick={handleOpenUserMenu}>
                 <Avatar sx={{ width: 36, height: 36, bgcolor: '#1976d2' }}>
                   {userInfo?.name?.charAt(0) || 'U'}
@@ -177,7 +176,7 @@ export const Navbar = ({ isProductList = false }) => {
                 variant="text"
                 sx={{ textTransform: 'none', fontWeight: 600 }}
               >
-                Dang nhap
+                Đăng nhập
               </Button>
               {!isMobile && (
                 <Button
@@ -187,7 +186,7 @@ export const Navbar = ({ isProductList = false }) => {
                   disableElevation
                   sx={{ textTransform: 'none', borderRadius: 2 }}
                 >
-                  Dang ky
+                  Đăng ký
                 </Button>
               )}
             </Stack>
@@ -213,14 +212,17 @@ export const Navbar = ({ isProductList = false }) => {
         }}
       >
         <Box px={1.5} py={1}>
-          <Typography fontWeight={700}>{userInfo?.name || 'Tai khoan'}</Typography>
+          <Typography fontWeight={700} variant="body1">
+            {userInfo?.name || 'Tài khoản'}
+          </Typography>
         </Box>
 
         <Divider />
 
-        {menuItems.map((item) => (
-          <React.Fragment key={item.label}>
-            {item.dividerBefore ? <Divider sx={{ my: 0.5 }} /> : null}
+        {/* FIX: Sử dụng Box làm component bọc để MUI Menu nhận diện đúng MenuItem */}
+        {menuItems.map((item, index) => (
+          <Box key={index} component="div">
+            {item.dividerBefore && <Divider sx={{ my: 0.5 }} />}
             <MenuItem
               component={Link}
               to={item.to}
@@ -229,9 +231,9 @@ export const Navbar = ({ isProductList = false }) => {
             >
               {item.label}
             </MenuItem>
-          </React.Fragment>
+          </Box>
         ))}
       </Menu>
     </AppBar>
-  )
-}
+  );
+};

@@ -36,18 +36,18 @@ import {
 const paymentOptions = [
   {
     value: 'COD',
-    label: 'Thanh toan khi nhan hang',
-    helper: 'Don hang duoc tao ngay va thanh toan khi giao.',
+    label: 'Thanh toán khi nhận hàng',
+    helper: 'Đơn hàng được tạo ngay và thanh toán khi nhận hàng',
   },
   {
     value: 'MOMO',
     label: 'MoMo eWallet',
-    helper: 'Chuyen huong sang vi MoMo de thanh toan online.',
+    helper: 'Chuyển hướng sang ví MOMO và thanh toán online',
   },
   {
     value: 'VNPAY',
     label: 'VNPay',
-    helper: 'Thanh toan online qua cong VNPAY va ngan hang/noi dia.',
+    helper: 'Thanh toán online qua cổng VNPAY và ngân hàng',
   },
 ]
 
@@ -94,9 +94,9 @@ export const Checkout = () => {
   useEffect(() => {
     if (addressStatus === 'fulfilled') {
       reset()
-      toast.success(loggedInUser ? 'Da them dia chi moi' : 'Da xac nhan dia chi giao hang')
+      toast.success(loggedInUser ? 'Đã thêm địa chỉ mới' : 'Đã xác nhận địa chỉ giao hàng')
     } else if (addressStatus === 'rejected') {
-      toast.error('Khong the luu dia chi, vui long thu lai')
+      toast.error('Không thể lưu địa chỉ, vui lòng thử lại')
     }
   }, [addressStatus, loggedInUser, reset])
 
@@ -125,19 +125,19 @@ export const Checkout = () => {
     }
 
     setGuestAddress(data)
-    toast.success('Da xac nhan thong tin giao hang')
+    toast.success('Đã xác nhận thông tin giao hàng')
   }
 
   const handleCreateOrder = async () => {
     const finalAddress = loggedInUser ? selectedAddress : guestAddress
 
     if (!cartItems.length) {
-      toast.error('Gio hang dang trong')
+      toast.error('Giỏ hàng đang trống')
       return
     }
 
     if (!finalAddress) {
-      toast.error("Vui long nhap dia chi va bam xac nhan truoc khi thanh toan")
+      toast.error("Vui lòng nhập địa chỉ và bấm xác nhận trước khi thanh toán")
       return
     }
 
@@ -195,47 +195,47 @@ export const Checkout = () => {
               <ArrowBackIcon fontSize={is480 ? 'medium' : 'large'} />
             </IconButton>
           </motion.div>
-          <Typography variant="h4">Thong tin giao hang</Typography>
+          <Typography variant="h4">Thông tin giao hàng</Typography>
         </Stack>
 
         <Stack component="form" noValidate rowGap={2} onSubmit={handleSubmit(handleAddAddress)}>
           <Stack>
-            <Typography gutterBottom>Nguoi nhan / Noi nhan</Typography>
+            <Typography gutterBottom>Người nhận / Nợi nhận</Typography>
             <TextField
-              placeholder="Ho ten hoac Ten cong ty..."
+              placeholder="Họ tên hoặc công ty..."
               {...register('type', { required: true })}
             />
           </Stack>
 
           <Stack>
-            <Typography gutterBottom>Duong</Typography>
+            <Typography gutterBottom>Đường</Typography>
             <TextField {...register('street', { required: true })} />
           </Stack>
 
           <Stack>
-            <Typography gutterBottom>Quoc gia</Typography>
+            <Typography gutterBottom>Quốc gia</Typography>
             <TextField {...register('country', { required: true })} defaultValue="Viet Nam" />
           </Stack>
 
           <Stack>
-            <Typography gutterBottom>So dien thoai</Typography>
+            <Typography gutterBottom>Số điện thoại</Typography>
             <TextField type="number" {...register('phoneNumber', { required: true })} />
           </Stack>
 
           <Stack flexDirection="row">
             <Stack width="100%">
-              <Typography gutterBottom>Thanh pho</Typography>
+              <Typography gutterBottom>Thành phố</Typography>
               <TextField {...register('city', { required: true })} />
             </Stack>
             <Stack width="100%">
-              <Typography gutterBottom>Ma buu chinh</Typography>
+              <Typography gutterBottom>Mã bưu chính</Typography>
               <TextField type="number" {...register('postalCode', { required: true })} />
             </Stack>
           </Stack>
 
           <Stack flexDirection="row" alignSelf="flex-end" columnGap={1}>
             <LoadingButton loading={addressStatus === 'pending'} type="submit" variant="contained">
-              {loggedInUser ? 'Them dia chi' : 'Xac nhan dia chi'}
+              {loggedInUser ? 'Thêm địa chỉ' : 'Xác nhận địa chỉ'}
             </LoadingButton>
             <Button color="error" variant="outlined" onClick={() => reset()}>
               Reset
@@ -246,9 +246,9 @@ export const Checkout = () => {
         {loggedInUser && savedAddresses.length > 0 && (
           <Stack rowGap={3}>
             <Stack>
-              <Typography variant="h6">Dia chi da luu</Typography>
+              <Typography variant="h6">Địa chỉ đã lưu</Typography>
               <Typography variant="body2" color="text.secondary">
-                Chon tu danh sach cua ban
+                Chọn từ danh sách của bạn
               </Typography>
             </Stack>
 
@@ -298,9 +298,9 @@ export const Checkout = () => {
 
         <Stack rowGap={3}>
           <Stack>
-            <Typography variant="h6">Phuong thuc thanh toan</Typography>
+            <Typography variant="h6">Phương thức thanh toán</Typography>
             <Typography variant="body2" color="text.secondary">
-              Chon cach thanh toan phu hop nhat cho don hang nay
+              Chọn cách thanh toán phù hợp cho đơn hàng này
             </Typography>
           </Stack>
 
@@ -342,7 +342,7 @@ export const Checkout = () => {
       </Stack>
 
       <Stack width={is900 ? '100%' : 'auto'} alignItems={is900 ? 'flex-start' : ''}>
-        <Typography variant="h4">Don hang</Typography>
+        <Typography variant="h4">Đơn hàng</Typography>
         <Cart checkout />
         <LoadingButton
           fullWidth
@@ -352,8 +352,8 @@ export const Checkout = () => {
           size="large"
         >
           {selectedPaymentMethod === 'COD'
-            ? 'Dat hang'
-            : `Thanh toan qua ${selectedPaymentMethod}`}
+            ? 'Đặt hàng'
+            : `Thanh toán qua ${selectedPaymentMethod}`}
         </LoadingButton>
       </Stack>
     </Stack>

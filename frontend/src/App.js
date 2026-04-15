@@ -39,7 +39,7 @@ import {
 } from './pages'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-
+import AIChat from './components/AIChat';
 import './assets/productDescription.css'
 
 function App() {

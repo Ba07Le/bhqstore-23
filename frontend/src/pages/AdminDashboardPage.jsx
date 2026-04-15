@@ -10,8 +10,9 @@ import { AdminShell } from '../features/admin/components/AdminShell'
 export const AdminDashboardPage = () => {
   return (
     <AdminShell
-      title="Seller Center Dashboard"
-      description="Theo doi doanh thu, suc khoe ton kho, san pham dang ban va cac dau viec quan trong trong cung mot bo giao dien quan tri."
+      title="Bảng điều khiển người bán"
+      description="Theo dõi doanh thu, sức khỏe tồn kho, sản phẩm đang bán và các đầu việc quan trọng trong cùng một giao diện quản trị."
+      
       actions={
         <Stack direction="row" gap={1} flexWrap="wrap">
           <Button
@@ -21,22 +22,24 @@ export const AdminDashboardPage = () => {
             color="inherit"
             startIcon={<LocalMallRoundedIcon />}
           >
-            Xem don hang
+            Xem đơn hàng
           </Button>
+
           <Button
             component={Link}
             to="/admin/add-product"
             variant="contained"
             startIcon={<AddBoxRoundedIcon />}
           >
-            Dang san pham
+            Đăng sản phẩm
           </Button>
         </Stack>
       }
+
       stats={[
-        { label: 'Workspace', value: 'Commerce' },
-        { label: 'Che do', value: 'Live admin' },
-        { label: 'Muc tieu', value: 'Tang doanh thu' },
+        { label: 'Không gian làm việc', value: 'Thương mại' },
+        { label: 'Chế độ', value: 'Quản trị trực tiếp' },
+        { label: 'Mục tiêu', value: 'Tăng doanh thu' },
       ]}
     >
       <AdminDashBoard />

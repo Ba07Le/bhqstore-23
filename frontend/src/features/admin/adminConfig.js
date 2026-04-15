@@ -4,51 +4,51 @@ import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
 
 export const adminNavigationItems = [
   {
-    label: 'Tong quan',
-    helper: 'Doanh thu, kho, hieu suat',
+    label: 'Tổng quan',
+    helper: 'Doanh thu, kho, hiệu suất',
     path: '/admin/dashboard',
     icon: <DashboardRoundedIcon />,
   },
   {
-    label: 'Don hang',
-    helper: 'Xu ly va cap nhat van don',
+    label: 'Đơn hàng',
+    helper: 'Xử lý và cập nhật vận đơn',
     path: '/admin/orders',
     icon: <LocalMallRoundedIcon />,
   },
   {
-    label: 'Them san pham',
-    helper: 'Tao listing moi',
+    label: 'Thêm sản phẩm',
+    helper: 'Tạo listing mới',
     path: '/admin/add-product',
     icon: <AddBoxRoundedIcon />,
   },
 ]
 
 export const analyticsRangeOptions = [
-  { value: '7d', label: '7 ngay' },
-  { value: '30d', label: '30 ngay' },
-  { value: '90d', label: '90 ngay' },
-  { value: '12m', label: '12 thang' },
-  { value: 'all', label: 'Toan bo' },
+  { value: '7d', label: '7 ngày qua' },
+  { value: '30d', label: '30 ngày qua' },
+  { value: '90d', label: '90 ngày qua' },
+  { value: '12m', label: '12 tháng qua' },
+  { value: 'all', label: 'Toàn bộ thời gian' },
 ]
 
 export const productSortOptions = [
-  { name: 'Moi nhat', sort: 'createdAt', order: 'desc' },
-  { name: 'Cu nhat', sort: 'createdAt', order: 'asc' },
-  { name: 'Gia thap den cao', sort: 'price', order: 'asc' },
-  { name: 'Gia cao den thap', sort: 'price', order: 'desc' },
+  { name: 'Mới nhất', sort: 'createdAt', order: 'desc' },
+  { name: 'Cũ nhất', sort: 'createdAt', order: 'asc' },
+  { name: 'Giá thấp đến cao', sort: 'price', order: 'asc' },
+  { name: 'Giá cao đến thấp', sort: 'price', order: 'desc' },
 ]
 
 export const stockFilterOptions = [
-  { label: 'Tat ca', value: 'all' },
-  { label: 'Con hang', value: 'in' },
-  { label: 'Sap het', value: 'low' },
-  { label: 'Het hang', value: 'out' },
+  { label: 'Tất cả', value: 'all' },
+  { label: 'Còn hàng', value: 'in' },
+  { label: 'Sắp hết hàng', value: 'low' },
+  { label: 'Hết hàng', value: 'out' },
 ]
 
 export const visibilityFilterOptions = [
-  { label: 'Tat ca', value: 'all' },
-  { label: 'Dang ban', value: 'active' },
-  { label: 'Tam an', value: 'deleted' },
+  { label: 'Tất cả', value: 'all' },
+  { label: 'Đang hiển thị', value: 'active' },
+  { label: 'Tạm ẩn', value: 'deleted' },
 ]
 
 export const orderStatusOptions = [
@@ -59,6 +59,6 @@ export const orderStatusOptions = [
   'Đã hủy',
 ]
 
-export const paymentFilterOptions = ['Tat ca', 'COD', 'MOMO', 'VNPAY', 'UPI', 'CARD']
+export const paymentFilterOptions = ['Tất cả', 'COD', 'MOMO', 'VNPAY', 'UPI', 'CARD']
 
 export const productImageFieldNames = ['image0', 'image1', 'image2', 'image3']

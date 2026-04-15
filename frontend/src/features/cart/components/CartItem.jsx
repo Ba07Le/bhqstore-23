@@ -110,7 +110,7 @@ export const CartItem = ({
             {title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {brand}
+            {brand && typeof brand === 'object' ? brand.name : brand}
           </Typography>
           <Typography mt={1}>Số lượng</Typography>
           <Stack flexDirection="row" alignItems="center">

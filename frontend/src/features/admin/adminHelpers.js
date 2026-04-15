@@ -18,34 +18,34 @@ export const formatAdminHeaderDate = () =>
 export const getStockMeta = (stockQuantity = 0) => {
   if (stockQuantity <= 0) {
     return {
-      label: 'Het hang',
+      label: 'Hết hàng',
       color: 'error',
       progress: 0,
-      helper: 'Can bo sung ngay',
+      helper: 'Cần bổ sung ngay',
     }
   }
 
   if (stockQuantity <= 20) {
     return {
-      label: 'Sap het',
+      label: 'Sắp hết',
       color: 'warning',
       progress: Math.min((stockQuantity / 20) * 100, 100),
-      helper: `Con ${stockQuantity} san pham`,
+      helper: `Còn ${stockQuantity} sản phẩm`,
     }
   }
 
   return {
-    label: 'On dinh',
+    label: 'Ổn định',
     color: 'success',
     progress: Math.min((stockQuantity / 100) * 100, 100),
-    helper: `Con ${stockQuantity} san pham`,
+    helper: `Còn ${stockQuantity} sản phẩm`,
   }
 }
 
 export const getVisibilityMeta = (product) =>
   product?.isDeleted
-    ? { label: 'Tam an', color: 'error' }
-    : { label: 'Dang ban', color: 'success' }
+    ? { label: 'Tạm ẩn', color: 'error' }
+    : { label: 'Đang bán', color: 'success' }
 
 export const getOrderAddress = (address) => {
   if (Array.isArray(address)) {
@@ -81,19 +81,19 @@ export const getPaymentStatusMeta = (status = '') => {
   const normalized = normalizeText(status)
 
   if (normalized.includes('paid')) {
-    return { label: 'Da thanh toan', color: 'success' }
+    return { label: 'Đã thanh toán', color: 'success' }
   }
   if (normalized.includes('failed')) {
-    return { label: 'That bai', color: 'error' }
+    return { label: 'Thất bại', color: 'error' }
   }
   if (normalized.includes('cancelled')) {
-    return { label: 'Da huy', color: 'error' }
+    return { label: 'Đã hủy', color: 'error' }
   }
   if (normalized.includes('cod_pending')) {
-    return { label: 'COD cho thu', color: 'warning' }
+    return { label: 'COD chờ thu', color: 'warning' }
   }
 
-  return { label: 'Cho thanh toan', color: 'warning' }
+  return { label: 'Chờ thanh toán', color: 'warning' }
 }
 
 export const getOrderSearchText = (order) => {
@@ -122,14 +122,14 @@ export const getOrderSearchText = (order) => {
 }
 
 export const getCustomerName = (order) =>
-  order?.user?.name || order?.user?.email || order?.name || 'Khach le'
+  order?.user?.name || order?.user?.email || order?.name || 'Khách lẻ'
 
 export const getCustomerMeta = (order) => {
   const address = getOrderAddress(order.address)
   return (
     order?.user?.email ||
     [address.city, address.state].filter(Boolean).join(', ') ||
-    'Khach mua tren website'
+    'Khách mua trên website'
   )
 }
 
@@ -145,16 +145,16 @@ export const getProductEditorChecklist = ({
   requireFullGallery = false,
   targetImageCount = 4,
 }) => [
-  { label: 'Ten san pham', done: Boolean(title?.trim()) },
-  { label: 'Brand va danh muc', done: Boolean(brand && category) },
-  { label: 'Mo ta chi tiet', done: Boolean(description?.trim()?.length >= 10) },
-  { label: 'Gia ban', done: Boolean(Number(price) > 0) },
+  { label: 'Tên sản phẩm', done: Boolean(title?.trim()) },
+  { label: 'Thương hiệu & Danh mục', done: Boolean(brand && category) },
+  { label: 'Mô tả chi tiết', done: Boolean(description?.trim()?.length >= 10) },
+  { label: 'Giá bán', done: Boolean(Number(price) > 0) },
   {
-    label: 'Ton kho',
+    label: 'Tồn kho',
     done: stockQuantity !== undefined && stockQuantity !== null && Number(stockQuantity) >= 0,
   },
   {
-    label: 'Media',
+    label: 'Hình ảnh',
     done: hasThumbnail && (requireFullGallery ? imageCount === targetImageCount : imageCount > 0),
   },
 ]

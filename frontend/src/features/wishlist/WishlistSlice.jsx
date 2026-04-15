@@ -64,11 +64,12 @@ const wishlistSlice=createSlice({
             .addCase(fetchWishlistByUserIdAsync.pending,(state)=>{
                 state.wishlistFetchStatus='pending'
             })
-            .addCase(fetchWishlistByUserIdAsync.fulfilled,(state,action)=>{
-                state.wishlistFetchStatus='fulfilled'
-                state.items=action.payload.data
-                state.totalResults=action.payload.totalResults
-            })
+            .addCase(fetchWishlistByUserIdAsync.fulfilled, (state, action) => {
+    state.wishlistFetchStatus = 'fulfilled';
+    // CHỈ LƯU NHỮNG ITEM CÓ PRODUCT HỢP LỆ
+    state.items = action.payload.data.filter(item => item.product !== null); 
+    state.totalResults = action.payload.totalResults;
+})
             .addCase(fetchWishlistByUserIdAsync.rejected,(state,action)=>{
                 state.wishlistFetchStatus='rejected'
                 state.errors=action.error

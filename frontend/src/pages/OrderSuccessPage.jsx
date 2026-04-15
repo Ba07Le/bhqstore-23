@@ -91,7 +91,7 @@ export const OrderSuccessPage = () => {
     order?.user?.name ||
     order?.address?.type ||
     (Array.isArray(order?.address) ? order?.address?.[0]?.type : null) ||
-    'Khach hang'
+    'Khách hàng'
 
   const isLoading =
     paymentVerificationStatus === 'pending' ||
@@ -102,19 +102,19 @@ export const OrderSuccessPage = () => {
     : order?.paymentMode === 'COD' || order?.paymentStatus === 'paid'
 
   const title = isSuccess
-    ? `Don hang #${order?._id || id} da duoc xac nhan`
-    : `Thanh toan don hang #${order?._id || id} chua thanh cong`
+    ? `Đơn hàng #${order?._id || id} đã được xác nhận`
+    : `Thanh toán đơn hàng #${order?._id || id} chưa thành công`
 
   const subtitle = isSuccess
-    ? 'Cam on ban da dat hang tai BHQStore.'
+    ? 'Cảm ơn bạn đã đặt hàng tại BHQStore.'
     : paymentResult?.message ||
       orderErrors?.message ||
-      'Ban co the thu lai thanh toan hoac kiem tra trong lich su don hang.'
+      'Bạn có thể thử lại thanh toán hoặc kiểm tra trong lịch sử thanh toán/đơn hàng.'
 
   const primaryActionTo = loggedInUser ? '/orders' : '/'
   const primaryActionLabel = loggedInUser
-    ? 'Kiem tra don hang cua ban'
-    : 'Ve trang chu'
+    ? 'Kiểm tra đơn hàng của bạn'
+    : 'Về trang chủ'
 
   return (
     <Stack width="100vw" minHeight="100vh" justifyContent="center" alignItems="center" px={2}>
@@ -136,15 +136,15 @@ export const OrderSuccessPage = () => {
 
         {isLoading ? (
           <Stack mt={2} rowGap={1}>
-            <Typography variant="h5">Dang xac minh ket qua thanh toan</Typography>
+            <Typography variant="h5">Đang xác minh kết quả thanh toán</Typography>
             <Typography variant="body2" color="text.secondary">
-              He thong dang doi chieu trang thai don hang tu cong thanh toan.
+              Hệ thống đang đối chiếu trạng thái đơn hàng từ cổng thanh toán.
             </Typography>
           </Stack>
         ) : (
           <Stack mt={2} rowGap={1} alignItems="center">
             <Typography variant="h6" fontWeight={400}>
-              Gui den {orderOwner}
+              Gửi đến {orderOwner}
             </Typography>
             <Typography variant="h5">{title}</Typography>
             <Typography variant="body2" color="text.secondary">
@@ -152,7 +152,7 @@ export const OrderSuccessPage = () => {
             </Typography>
             {order?.paymentMode ? (
               <Typography variant="body2" color="text.secondary">
-                Phuong thuc: {order.paymentMode}
+                Phương thức: {order.paymentMode}
               </Typography>
             ) : null}
           </Stack>
@@ -169,7 +169,7 @@ export const OrderSuccessPage = () => {
             {primaryActionLabel}
           </Button>
           <Button component={Link} to="/products" fullWidth variant="outlined">
-            Tiep tuc mua sam
+            Tiếp tục mua sắm
           </Button>
         </Stack>
       </Stack>

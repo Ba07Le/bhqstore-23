@@ -20,16 +20,14 @@ export const fetchProducts=async(filters)=>{
         params.append('admin', 'true')
     }
 
-    if(filters.brand){
-        filters.brand.forEach((brand)=>{
-            params.append('brand', brand)
-        })
+if (filters.brand && filters.brand.length > 0) {
+        // Cách 1: Gửi kiểu brand=id1,id2 (Backend bạn đang dùng .split(','))
+        params.append('brand', filters.brand.join(','));
     }
 
-    if(filters.category){
-        filters.category.forEach((category)=>{
-            params.append('category', category)
-        })
+    if (filters.category && filters.category.length > 0) {
+        // Tương tự cho category
+        params.append('category', filters.category.join(','));
     }
 
     if(filters.pagination){

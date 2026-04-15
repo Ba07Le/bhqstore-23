@@ -1,13 +1,13 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
-
-import AIChatWidget from '../components/AIChatWidget'
+import { Outlet } from 'react-router-dom';
+import AIChat from '../components/AIChat'; 
 
 export const RootLayout = () => {
   return (
-    <main>
-      <Outlet />
-      <AIChatWidget />
-    </main>
-  )
-}
+    <div className="min-h-screen flex flex-col">   
+      <main className="flex-grow">
+        <Outlet /> 
+      </main>
+      <AIChat /> 
+    </div>
+  );
+};

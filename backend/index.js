@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 const express=require('express')
 const cors=require('cors')
 const morgan=require("morgan")
@@ -43,6 +43,7 @@ connectToDB()
 
 
 // middlewares
+console.log("Allowed Origins Array:", allowedOrigins);
 server.use(
   cors({
     origin(origin, callback) {

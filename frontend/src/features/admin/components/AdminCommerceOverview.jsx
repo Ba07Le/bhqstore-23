@@ -45,47 +45,48 @@ export const AdminCommerceOverview = ({
     {
       label: 'Doanh thu',
       value: formatCurrency(overview.grossRevenue || 0),
-      helper: `${overview.totalOrders || 0} don trong ky`,
-      icon: <MonetizationOnRoundedIcon />,
+      helper: `${overview.totalOrders || 0} đơn trong kỳ`,
+      icon: <MonetizationOnRoundedIcon fontSize="small" />,
     },
     {
-      label: 'Da giao',
+      label: 'Đã giao',
       value: formatCurrency(overview.deliveredRevenue || 0),
-      helper: `${overview.deliveredOrders || 0} don hoan tat`,
-      icon: <LocalShippingRoundedIcon />,
+      helper: `${overview.deliveredOrders || 0} đơn hoàn tất`,
+      icon: <LocalShippingRoundedIcon fontSize="small" />,
     },
     {
-      label: 'Khach hang',
+      label: 'Khách hàng',
       value: `${overview.customersCount || 0}`,
-      helper: `${overview.fulfillmentRate || 0}% ti le hoan tat`,
-      icon: <Groups2RoundedIcon />,
+      helper: `${overview.fulfillmentRate || 0}% tỉ lệ hoàn tất`,
+      icon: <Groups2RoundedIcon fontSize="small" />,
     },
     {
-      label: 'Gia tri TB',
+      label: 'Giá trị TB',
       value: formatCurrency(overview.averageOrderValue || 0),
-      helper: `${overview.cancellationRate || 0}% ti le huy`,
-      icon: <AutoGraphRoundedIcon />,
+      helper: `${overview.cancellationRate || 0}% tỉ lệ hủy`,
+      icon: <AutoGraphRoundedIcon fontSize="small" />,
     },
   ]
 
   if (orderStatsStatus === 'pending' && !analytics) {
     return (
-      <Paper elevation={0} sx={{ p: 5, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-        <Stack alignItems="center" rowGap={2}>
-          <CircularProgress />
-          <Typography color="text.secondary">Dang tong hop doanh thu va van hanh...</Typography>
+      <Paper elevation={0} sx={{ p: 4, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Stack alignItems="center" rowGap={1.5}>
+          <CircularProgress size={30} />
+          <Typography variant="body2" color="text.secondary">Đang tổng hợp dữ liệu...</Typography>
         </Stack>
       </Paper>
     )
   }
 
   return (
-    <Stack rowGap={3}>
+    <Stack rowGap={2}>
+      {/* Banner Header - Reduced padding and font sizes */}
       <Paper
         elevation={0}
         sx={{
-          p: 3,
-          borderRadius: 5,
+          p: 2,
+          borderRadius: 3,
           border: '1px solid',
           borderColor: 'divider',
           background:
@@ -93,38 +94,38 @@ export const AdminCommerceOverview = ({
           color: '#fff',
         }}
       >
-        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" gap={2}>
-          <Stack rowGap={1}>
-            <Typography variant="h4" fontWeight={800}>
-              Commerce Overview
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" gap={2}>
+          <Stack rowGap={0.5}>
+            <Typography variant="h5" fontWeight={800} sx={{ fontSize: '1.25rem' }}>
+              Tổng quan kinh doanh
             </Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.8)' }}>
-              Xem doanh thu, don hang, khach hang va san pham ban chay tren cung mot man hinh.
+            <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
+              Xem doanh thu, đơn hàng, khách hàng và sản phẩm bán chạy.
             </Typography>
             <Chip
-              label={analytics?.window?.label || '30 ngay gan nhat'}
+              label={analytics?.window?.label || '30 ngày gần nhất'}
               size="small"
-              sx={{ alignSelf: 'flex-start', bgcolor: 'rgba(255,255,255,0.12)', color: '#fff' }}
+              sx={{ alignSelf: 'flex-start', bgcolor: 'rgba(255,255,255,0.12)', color: '#fff', height: 20, fontSize: '0.7rem' }}
             />
           </Stack>
 
           <FormControl
             size="small"
             sx={{
-              minWidth: 170,
-              '& .MuiOutlinedInput-root': { color: '#fff', bgcolor: 'rgba(255,255,255,0.08)' },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.16)' },
+              minWidth: 140,
+              '& .MuiOutlinedInput-root': { color: '#fff', bgcolor: 'rgba(255,255,255,0.08)', fontSize: '0.8rem' },
+              '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem' },
               '& .MuiSvgIcon-root': { color: '#fff' },
             }}
           >
-            <InputLabel sx={{ color: 'rgba(255,255,255,0.75)' }}>Ky xem</InputLabel>
+            <InputLabel>Kỳ xem</InputLabel>
             <Select
-              label="Ky xem"
+              label="Kỳ xem"
               value={analyticsRange}
               onChange={(event) => onAnalyticsRangeChange(event.target.value)}
             >
               {analyticsRangeOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
+                <MenuItem key={option.value} value={option.value} sx={{ fontSize: '0.8rem' }}>
                   {option.label}
                 </MenuItem>
               ))}
@@ -133,28 +134,29 @@ export const AdminCommerceOverview = ({
         </Stack>
       </Paper>
 
-      {orderStatsStatus === 'rejected' ? (
-        <Alert severity="error">Khong tai duoc thong ke doanh thu. Vui long thu lai sau.</Alert>
-      ) : null}
+      {orderStatsStatus === 'rejected' && (
+        <Alert severity="error" sx={{ py: 0, fontSize: '0.8rem' }}>Lỗi tải dữ liệu.</Alert>
+      )}
 
-      <Grid container spacing={2}>
+      {/* Metric Cards - Compact size */}
+      <Grid container spacing={1.5}>
         {cards.map((card) => (
-          <Grid key={card.label} item xs={12} sm={6} xl={3}>
-            <Paper elevation={0} sx={{ p: 2.5, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+          <Grid key={card.label} item xs={6} sm={6} xl={3}>
+            <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: '100%' }}>
               <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                <Stack rowGap={0.5}>
-                  <Typography variant="body2" color="text.secondary">
+                <Stack rowGap={0.2}>
+                  <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">
                     {card.label}
                   </Typography>
-                  <Typography variant="h4" fontWeight={800}>
+                  <Typography variant="h6" fontWeight={800} sx={{ fontSize: '1.1rem' }}>
                     {card.value}
                   </Typography>
                 </Stack>
                 <Box
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 3,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 1.5,
                     bgcolor: '#eff6ff',
                     color: '#1d4ed8',
                     display: 'grid',
@@ -164,7 +166,7 @@ export const AdminCommerceOverview = ({
                   {card.icon}
                 </Box>
               </Stack>
-              <Typography mt={2} color="text.secondary" variant="body2">
+              <Typography mt={1} color="text.secondary" sx={{ fontSize: '0.7rem' }}>
                 {card.helper}
               </Typography>
             </Paper>
@@ -172,62 +174,56 @@ export const AdminCommerceOverview = ({
         ))}
       </Grid>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={1.5}>
+        {/* Revenue Chart Section */}
         <Grid item xs={12} lg={7}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
-            <Stack rowGap={2}>
-              <Typography variant="h6" fontWeight={700}>
-                Doanh thu theo ky
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+            <Stack rowGap={1.5}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
+                Doanh thu theo kỳ
               </Typography>
               <Box sx={{ overflowX: 'auto', pb: 1 }}>
-                <Stack minWidth={Math.max(revenueSeries.length * 36, 360)} direction="row" alignItems="flex-end" gap={1} height={220}>
+                <Stack minWidth={Math.max(revenueSeries.length * 28, 300)} direction="row" alignItems="flex-end" gap={0.8} height={150}>
                   {revenueSeries.length ? (
                     revenueSeries.map((item, index) => (
-                      <Stack key={item.key} flex={1} alignItems="center" justifyContent="flex-end" rowGap={1}>
+                      <Stack key={item.key} flex={1} alignItems="center" justifyContent="flex-end" rowGap={0.5}>
                         <Box
                           sx={{
                             width: '100%',
-                            maxWidth: 28,
-                            minHeight: 8,
-                            borderRadius: '16px 16px 6px 6px',
+                            maxWidth: 20,
+                            minHeight: 4,
+                            borderRadius: '12px 12px 4px 4px',
                             height: maxRevenue
                               ? `${Math.max((item.revenue / maxRevenue) * 100, item.revenue ? 10 : 4)}%`
                               : '4%',
-                            background:
-                              'linear-gradient(180deg, rgba(37,99,235,0.92) 0%, rgba(29,78,216,0.72) 100%)',
+                            background: 'linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%)',
                           }}
                         />
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
                           {index % labelStep === 0 || index === revenueSeries.length - 1 ? item.label : ''}
                         </Typography>
                       </Stack>
                     ))
                   ) : (
-                    <Typography color="text.secondary">Chua co doanh thu trong ky nay.</Typography>
+                    <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">Chưa có dữ liệu.</Typography>
                   )}
                 </Stack>
               </Box>
 
-              <Stack rowGap={1.2}>
+              <Stack rowGap={1}>
                 {paymentBreakdown.map((item) => {
                   const totalRevenue = overview.grossRevenue || 0
                   const percent = totalRevenue ? (item.revenue / totalRevenue) * 100 : 0
-
                   return (
-                    <Stack key={item.label} rowGap={0.7}>
+                    <Stack key={item.label} rowGap={0.4}>
                       <Stack direction="row" justifyContent="space-between">
-                        <Typography fontWeight={600}>{item.label}</Typography>
-                        <Typography color="text.secondary">{formatCurrency(item.revenue)}</Typography>
+                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 600 }}>{item.label}</Typography>
+                        <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">{formatCurrency(item.revenue)}</Typography>
                       </Stack>
                       <LinearProgress
                         variant="determinate"
                         value={Math.max(percent, item.revenue ? 6 : 0)}
-                        sx={{
-                          height: 8,
-                          borderRadius: 999,
-                          bgcolor: '#eef2ff',
-                          '& .MuiLinearProgress-bar': { borderRadius: 999, bgcolor: '#2563eb' },
-                        }}
+                        sx={{ height: 6, borderRadius: 999, bgcolor: '#eef2ff' }}
                       />
                     </Stack>
                   )
@@ -237,121 +233,113 @@ export const AdminCommerceOverview = ({
           </Paper>
         </Grid>
 
+        {/* Top Products */}
         <Grid item xs={12} lg={5}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
-            <Stack rowGap={2}>
-              <Typography variant="h6" fontWeight={700}>
-                San pham ban chay
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+            <Stack rowGap={1.5}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
+                Sản phẩm bán chạy
               </Typography>
               {topProducts.length ? (
                 topProducts.map((item) => (
-                  <Stack key={item.productId} direction="row" justifyContent="space-between" alignItems="center" gap={2} py={1.1} borderBottom="1px solid" borderColor="divider">
-                    <Stack direction="row" gap={1.5} alignItems="center">
-                      <Avatar src={getImageUrl(item.thumbnail)} variant="rounded" sx={{ width: 48, height: 48 }} />
-                      <Stack>
-                        <Typography fontWeight={700}>{item.title}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {item.brand || 'Thuong hieu dang cap nhat'}
-                        </Typography>
+                  <Stack key={item.productId} direction="row" justifyContent="space-between" alignItems="center" gap={1.5} py={0.8} borderBottom="1px solid" borderColor="divider">
+                    <Stack direction="row" gap={1} alignItems="center">
+                      <Avatar src={getImageUrl(item.thumbnail)} variant="rounded" sx={{ width: 36, height: 36 }} />
+                      <Stack minWidth={0}>
+                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }} noWrap>{item.title}</Typography>
+                        <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">{item.brand || 'N/A'}</Typography>
                       </Stack>
                     </Stack>
                     <Stack alignItems="flex-end">
-                      <Typography fontWeight={700}>{formatCurrency(item.revenue)}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {item.quantity} sp
-                      </Typography>
+                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }}>{formatCurrency(item.revenue)}</Typography>
+                      <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">{item.quantity} sp</Typography>
                     </Stack>
                   </Stack>
                 ))
               ) : (
-                <Typography color="text.secondary">Chua co san pham ban ra trong ky nay.</Typography>
+                <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">Chưa có dữ liệu.</Typography>
               )}
             </Stack>
           </Paper>
         </Grid>
       </Grid>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={1.5}>
+        {/* Recent Orders */}
         <Grid item xs={12} lg={6}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
-            <Stack rowGap={2}>
-              <Typography variant="h6" fontWeight={700}>
-                Don hang moi nhat
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+            <Stack rowGap={1.5}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
+                Đơn hàng mới nhất
               </Typography>
               {recentOrders.length ? (
                 recentOrders.map((order) => (
-                  <Stack key={order._id} direction="row" justifyContent="space-between" alignItems="center" gap={2} py={1.2} borderBottom="1px solid" borderColor="divider">
-                    <Stack rowGap={0.4}>
-                      <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap">
-                        <Typography fontWeight={700}>#{order._id.slice(-6).toUpperCase()}</Typography>
-                        <Chip size="small" label={order.status} sx={getOrderStatusStyles(order.status)} />
+                  <Stack key={order._id} direction="row" justifyContent="space-between" alignItems="center" gap={1.5} py={1} borderBottom="1px solid" borderColor="divider">
+                    <Stack rowGap={0.2}>
+                      <Stack direction="row" gap={0.8} alignItems="center">
+                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }}>#{order._id.slice(-6).toUpperCase()}</Typography>
+                        <Chip size="small" label={order.status} sx={{ ...getOrderStatusStyles(order.status), height: 18, fontSize: '0.65rem' }} />
                       </Stack>
-                      <Typography>{order.customer?.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {order.firstItemTitle} • {order.itemCount} mon
+                      <Typography sx={{ fontSize: '0.85rem' }}>{order.customer?.name}</Typography>
+                      <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary" noWrap>
+                        {order.firstItemTitle} • {order.itemCount} món
                       </Typography>
                     </Stack>
                     <Stack alignItems="flex-end">
-                      <Typography fontWeight={700}>{formatCurrency(order.total)}</Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }}>{formatCurrency(order.total)}</Typography>
+                      <Typography sx={{ fontSize: '0.7rem' }} color="text.secondary">
                         {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                       </Typography>
                     </Stack>
                   </Stack>
                 ))
               ) : (
-                <Typography color="text.secondary">Chua co don hang phat sinh.</Typography>
+                <Typography sx={{ fontSize: '0.8rem' }} color="text.secondary">Chưa có đơn hàng.</Typography>
               )}
             </Stack>
           </Paper>
         </Grid>
 
+        {/* Inventory and Customers */}
         <Grid item xs={12} lg={6}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
-            <Stack rowGap={2}>
-              <Typography variant="h6" fontWeight={700}>
-                Khach hang va ton kho can chu y
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+            <Stack rowGap={1.5}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.95rem' }}>
+                Cần chú ý
               </Typography>
 
-              {topCustomers.slice(0, 3).map((customer) => (
-                <Stack key={customer.customerKey} direction="row" justifyContent="space-between" alignItems="center" gap={2} py={1} borderBottom="1px solid" borderColor="divider">
-                  <Stack direction="row" gap={1.5} alignItems="center">
-                    <Avatar sx={{ bgcolor: '#dbeafe', color: '#1d4ed8' }}>
-                      {customer.name?.charAt(0)?.toUpperCase() || 'K'}
+              {topCustomers.slice(0, 4).map((customer) => (
+                <Stack key={customer.customerKey} direction="row" justifyContent="space-between" alignItems="center" gap={1.5} py={0.8} borderBottom="1px solid" borderColor="divider">
+                  <Stack direction="row" gap={1} alignItems="center">
+                    <Avatar sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', width: 32, height: 32, fontSize: '0.85rem' }}>
+                      {customer.name?.charAt(0)?.toUpperCase()}
                     </Avatar>
                     <Stack>
-                      <Typography fontWeight={700}>{customer.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {customer.orders} don
-                      </Typography>
+                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }}>{customer.name}</Typography>
+                      <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">{customer.orders} đơn</Typography>
                     </Stack>
                   </Stack>
-                  <Typography fontWeight={700}>{formatCurrency(customer.spent)}</Typography>
+                  <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }}>{formatCurrency(customer.spent)}</Typography>
                 </Stack>
               ))}
 
-              {inventoryAlerts.slice(0, 3).map((product) => (
-                <Stack key={product._id} direction="row" justifyContent="space-between" alignItems="center" gap={2} py={1} borderBottom="1px solid" borderColor="divider">
-                  <Stack direction="row" gap={1.5} alignItems="center">
-                    <Avatar src={getImageUrl(product.thumbnail)} variant="rounded" sx={{ width: 44, height: 44 }} />
-                    <Stack>
-                      <Typography fontWeight={700}>{product.title}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {product.brand || 'Thuong hieu dang cap nhat'}
-                      </Typography>
+              {inventoryAlerts.slice(0, 4).map((product) => (
+                <Stack key={product._id} direction="row" justifyContent="space-between" alignItems="center" gap={1.5} py={0.8} borderBottom="1px solid" borderColor="divider">
+                  <Stack direction="row" gap={1} alignItems="center">
+                    <Avatar src={getImageUrl(product.thumbnail)} variant="rounded" sx={{ width: 32, height: 32 }} />
+                    <Stack minWidth={0}>
+                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }} noWrap>{product.title}</Typography>
+                      <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">Tồn: {product.stockQuantity}</Typography>
                     </Stack>
                   </Stack>
                   <Chip
                     size="small"
                     color={product.stockQuantity <= 0 ? 'error' : 'warning'}
-                    label={product.stockQuantity <= 0 ? 'Het hang' : `Con ${product.stockQuantity}`}
+                    label={product.stockQuantity <= 0 ? 'Hết hàng' : 'Sắp hết'}
+                    sx={{ height: 18, fontSize: '0.65rem' }}
                   />
                 </Stack>
               ))}
-
-              {!topCustomers.length && !inventoryAlerts.length ? (
-                <Typography color="text.secondary">Chua co du lieu noi bat trong ky nay.</Typography>
-              ) : null}
             </Stack>
           </Paper>
         </Grid>

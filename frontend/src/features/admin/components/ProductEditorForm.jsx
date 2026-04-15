@@ -128,16 +128,16 @@ export const ProductEditorForm = ({
     ? Math.round((completionCount / checklist.length) * 100)
     : 0
 
-  const sideTitle = mode === 'create' ? 'Muc do san sang' : 'Tinh trang listing'
+  const sideTitle = mode === 'create' ? 'Mức độ sẵn sàng' : 'Tình trạng listing'
   const sideDescription =
     mode === 'create'
-      ? `Listing dat ${completionRate}% checklist dang ban.`
-      : `Listing dat ${completionRate}% checklist van hanh.`
-  const noteTitle = mode === 'create' ? 'Goi y dang ban' : 'Luu y toi uu'
+      ? `Sản phẩm đạt ${completionRate}% checklist đăng bán.`
+      : `Sản phẩm đạt ${completionRate}% checklist vận hành.`
+  const noteTitle = mode === 'create' ? 'Gợi ý đăng bán' : 'Lưu ý tối ưu'
   const noteDescription =
     mode === 'create'
-      ? 'Dat ten ro rang, mo ta du thong tin va dung bo anh day du se giup listing de duoc duyet va hien thi tot hon.'
-      : 'Moi lan cap nhat gia, ton kho hoac media nen di kem mot lan kiem tra lai readiness de listing khong bi mat hieu qua ban hang.'
+      ? 'Đặt tên rõ ràng, mô tả đủ thông tin và dùng bộ ảnh đầy đủ sẽ giúp sản phẩm dễ được duyệt và hiển thị tốt hơn.'
+      : 'Mỗi lần cập nhật giá, tồn kho hoặc media nên đi kèm một lần kiểm tra lại độ sẵn sàng để sản phẩm không bị mất hiệu quả bán hàng.'
 
   return (
     <Stack rowGap={3}>
@@ -156,13 +156,13 @@ export const ProductEditorForm = ({
       <Stack component="form" rowGap={3} noValidate onSubmit={handleSubmit(onSubmit)}>
         <Stack direction={is1100 ? 'column' : 'row'} gap={3} alignItems="flex-start">
           <Stack flex={1} rowGap={3} width="100%">
-            <AdminSurface title="Thong tin co ban">
+            <AdminSurface title="Thông tin cơ bản">
               <Stack rowGap={3}>
                 <TextField
-                  label="Ten san pham"
+                  label="Tên sản phẩm"
                   {...register('title', {
-                    required: 'Bat buoc',
-                    minLength: { value: 3, message: 'Toi thieu 3 ky tu' },
+                    required: 'Bắt buộc nhập tên sản phẩm',
+                    minLength: { value: 3, message: 'Tối thiểu 3 ký tự' },
                   })}
                   error={!!errors.title}
                   helperText={errors.title?.message}
@@ -171,12 +171,12 @@ export const ProductEditorForm = ({
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={6}>
                     <FormControl fullWidth error={!!errors.brand}>
-                      <InputLabel id={`${mode}-brand-selection`}>Thuong hieu</InputLabel>
+                      <InputLabel id={`${mode}-brand-selection`}>Thương hiệu</InputLabel>
                       <Select
                         labelId={`${mode}-brand-selection`}
-                        label="Thuong hieu"
+                        label="Thương hiệu"
                         defaultValue={defaultValues.brand}
-                        {...register('brand', { required: 'Bat buoc' })}
+                        {...register('brand', { required: 'Vui lòng chọn thương hiệu' })}
                       >
                         {brands.map((item) => (
                           <MenuItem key={item._id} value={item._id}>
@@ -192,12 +192,12 @@ export const ProductEditorForm = ({
 
                   <Grid item xs={12} md={6}>
                     <FormControl fullWidth error={!!errors.category}>
-                      <InputLabel id={`${mode}-category-selection`}>Danh muc</InputLabel>
+                      <InputLabel id={`${mode}-category-selection`}>Danh mục</InputLabel>
                       <Select
                         labelId={`${mode}-category-selection`}
-                        label="Danh muc"
+                        label="Danh mục"
                         defaultValue={defaultValues.category}
-                        {...register('category', { required: 'Bat buoc' })}
+                        {...register('category', { required: 'Vui lòng chọn danh mục' })}
                       >
                         {categories.map((item) => (
                           <MenuItem key={item._id} value={item._id}>
@@ -213,12 +213,12 @@ export const ProductEditorForm = ({
                 </Grid>
 
                 <TextField
-                  label="Mo ta san pham"
+                  label="Mô tả sản phẩm"
                   multiline
                   rows={5}
                   {...register('description', {
-                    required: 'Bat buoc',
-                    minLength: { value: 10, message: 'Toi thieu 10 ky tu' },
+                    required: 'Bắt buộc nhập mô tả',
+                    minLength: { value: 10, message: 'Tối thiểu 10 ký tự' },
                   })}
                   error={!!errors.description}
                   helperText={errors.description?.message}
@@ -226,16 +226,16 @@ export const ProductEditorForm = ({
               </Stack>
             </AdminSurface>
 
-            <AdminSurface title="Gia ban va ton kho">
+            <AdminSurface title="Giá bán và tồn kho">
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="Gia san pham"
+                    label="Giá sản phẩm"
                     type="number"
                     {...register('price', {
-                      required: 'Bat buoc',
-                      min: { value: 1, message: 'Gia phai lon hon 0' },
+                      required: 'Bắt buộc nhập giá',
+                      min: { value: 1, message: 'Giá phải lớn hơn 0' },
                     })}
                     error={!!errors.price}
                     helperText={errors.price?.message}
@@ -245,11 +245,11 @@ export const ProductEditorForm = ({
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="So luong ton kho"
+                    label="Số lượng tồn kho"
                     type="number"
                     {...register('stockQuantity', {
-                      required: 'Bat buoc',
-                      min: { value: 0, message: 'Khong duoc nho hon 0' },
+                      required: 'Bắt buộc nhập số lượng',
+                      min: { value: 0, message: 'Không được nhỏ hơn 0' },
                     })}
                     error={!!errors.stockQuantity}
                     helperText={errors.stockQuantity?.message}
@@ -258,14 +258,15 @@ export const ProductEditorForm = ({
               </Grid>
             </AdminSurface>
 
-            <AdminSurface title={mode === 'create' ? 'Media listing' : 'Cap nhat media'}>
+            <AdminSurface title={mode === 'create' ? 'Media sản phẩm' : 'Cập nhật media'}>
               <Stack rowGap={3}>
                 <TextField
-                  label={mode === 'create' ? 'Thumbnail san pham' : 'Thay thumbnail'}
+                  label={mode === 'create' ? 'Ảnh đại diện (Thumbnail)' : 'Thay đổi ảnh đại diện'}
                   type="file"
+                  InputLabelProps={{ shrink: true }}
                   inputProps={{ accept: 'image/*' }}
                   {...register('thumbnail', {
-                    required: mode === 'create' ? 'Bat buoc' : false,
+                    required: mode === 'create' ? 'Vui lòng chọn ảnh đại diện' : false,
                   })}
                   error={!!errors.thumbnail}
                   helperText={errors.thumbnail?.message}
@@ -275,11 +276,12 @@ export const ProductEditorForm = ({
                   {productImageFieldNames.map((fieldName, index) => (
                     <TextField
                       key={fieldName}
-                      label={`Anh chi tiet ${index + 1}`}
+                      label={`Ảnh chi tiết ${index + 1}`}
                       type="file"
+                      InputLabelProps={{ shrink: true }}
                       inputProps={{ accept: 'image/*' }}
                       {...register(fieldName, {
-                        required: mode === 'create' ? 'Bat buoc' : false,
+                        required: mode === 'create' ? 'Vui lòng chọn ảnh chi tiết' : false,
                       })}
                       error={!!errors[fieldName]}
                       helperText={errors[fieldName]?.message}
@@ -326,7 +328,7 @@ export const ProductEditorForm = ({
                       size="small"
                       color={item.done ? 'success' : 'default'}
                       icon={item.done ? <CheckCircleRoundedIcon /> : undefined}
-                      label={item.done ? 'Dat' : mode === 'create' ? 'Thieu' : 'Can xem lai'}
+                      label={item.done ? 'Đạt' : mode === 'create' ? 'Thiếu' : 'Cần xem lại'}
                     />
                   </Stack>
                 ))}
@@ -334,7 +336,7 @@ export const ProductEditorForm = ({
 
               <Stack rowGap={1}>
                 <Typography variant="subtitle1" fontWeight={700}>
-                  Thumbnail
+                  Ảnh đại diện
                 </Typography>
 
                 {thumbnailFile ? (
@@ -342,23 +344,23 @@ export const ProductEditorForm = ({
                 ) : initialProduct?.thumbnail ? (
                   <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap">
                     {renderPreviewImage(getImageUrl(initialProduct.thumbnail), initialProduct.title)}
-                    <Typography color="text.secondary">
-                      Dang dung thumbnail hien tai
+                    <Typography variant="caption" color="text.secondary">
+                      Đang dùng ảnh hiện tại
                     </Typography>
                   </Stack>
                 ) : (
-                  <Typography color="text.secondary">Chua chon thumbnail</Typography>
+                  <Typography variant="caption" color="text.secondary">Chưa chọn ảnh</Typography>
                 )}
               </Stack>
 
               <Stack rowGap={1}>
                 <Typography variant="subtitle1" fontWeight={700}>
-                  Bo anh chi tiet
+                  Bộ ảnh chi tiết
                 </Typography>
                 <Stack direction="row" gap={1} flexWrap="wrap">
                   {selectedGalleryFiles.length
-                    ? selectedGalleryFiles.map((file) => (
-                        <React.Fragment key={file.name}>
+                    ? selectedGalleryFiles.map((file, idx) => (
+                        <React.Fragment key={`${file.name}-${idx}`}>
                           {renderPreviewImage(URL.createObjectURL(file), file.name)}
                         </React.Fragment>
                       ))
@@ -373,7 +375,7 @@ export const ProductEditorForm = ({
                 </Stack>
 
                 {!selectedGalleryFiles.length && !(initialProduct?.images || []).length ? (
-                  <Typography color="text.secondary">Chua co anh chi tiet</Typography>
+                  <Typography variant="caption" color="text.secondary">Chưa có ảnh chi tiết</Typography>
                 ) : null}
               </Stack>
 
@@ -404,7 +406,7 @@ export const ProductEditorForm = ({
             component={Link}
             to="/admin/dashboard"
           >
-            Huy
+            Hủy
           </Button>
           <Button
             size={is480 ? 'medium' : 'large'}

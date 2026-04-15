@@ -56,10 +56,10 @@ export const MockPaymentPage = () => {
         })
       ).unwrap()
 
-      toast.success(result?.message || 'Da cap nhat ket qua thanh toan')
+      toast.success(result?.message || 'Đã cập nhật kết quả thanh toán')
       navigate(`/order-success/${id}`)
     } catch (error) {
-      toast.error(error?.message || 'Khong the xu ly thanh toan mo phong')
+      toast.error(error?.message || 'Không thể xử lí thanh toán mô phỏng')
     }
   }
 
@@ -78,19 +78,17 @@ export const MockPaymentPage = () => {
           <Stack rowGap={3}>
             <Stack rowGap={1.5}>
               <Typography variant="h4" fontWeight={800}>
-                Cong thanh toan mo phong
+                Cổng thanh toán mô phỏng
               </Typography>
               <Typography color="text.secondary">
-                He thong dang chay che do test local vi chua co credential sandbox cho cong thanh
-                toan that.
+                Hệ thống đang chạy chế độ test local vì chưa có credential sandbox cho cổng thanh toán thật.
               </Typography>
             </Stack>
 
             {isSupported ? (
               <>
                 <Alert severity="info" sx={{ borderRadius: 3 }}>
-                  Ban co the mo phong ket qua thanh toan thanh cong hoac that bai de kiem tra toan
-                  bo luong mua hang.
+                  Bạn có thể mô phỏng kết quả thanh toán thành công hoặc thất bại để kiểm tra toàn bộ luồng mua hàng.
                 </Alert>
 
                 <Stack
@@ -106,7 +104,7 @@ export const MockPaymentPage = () => {
                 >
                   <Stack rowGap={0.75}>
                     <Typography variant="body2" color="text.secondary">
-                      Don hang
+                      Đơn hàng
                     </Typography>
                     <Typography fontWeight={800}>#{id.slice(-8).toUpperCase()}</Typography>
                   </Stack>
@@ -129,7 +127,7 @@ export const MockPaymentPage = () => {
                     disabled={isProcessing}
                     onClick={() => handleCompletePayment(true)}
                   >
-                    Xac nhan thanh toan thanh cong
+                    Xác nhận thanh toán thành công
                   </Button>
                   <Button
                     fullWidth
@@ -139,22 +137,22 @@ export const MockPaymentPage = () => {
                     disabled={isProcessing}
                     onClick={() => handleCompletePayment(false)}
                   >
-                    Mo phong that bai
+                    Mô phỏng thất bại
                   </Button>
                 </Stack>
               </>
             ) : (
               <Alert severity="warning" sx={{ borderRadius: 3 }}>
-                Khong xac dinh duoc gateway hoac ma don hang de mo phong thanh toan.
+                Không xác định được gateway hoặc mã đơn hàng để mô phỏng thanh toán.
               </Alert>
             )}
 
             <Stack direction={{ xs: 'column', sm: 'row' }} gap={1.5}>
               <Button component={Link} to="/checkout" fullWidth variant="outlined">
-                Quay lai checkout
+                Quay lại checkout
               </Button>
               <Button component={Link} to="/products" fullWidth variant="text">
-                Tiep tuc mua sam
+                Tiếp tục mua sắm
               </Button>
             </Stack>
           </Stack>

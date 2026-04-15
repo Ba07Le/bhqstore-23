@@ -5,7 +5,8 @@ const getRuntimeApiBaseUrl = () => {
     return ''
   }
 
-  return `${window.location.protocol}//${window.location.hostname}:8000`
+  // PHẢI CÓ http:// và dùng localhost thay vì IP cũ
+  return `http://localhost:8000` 
 }
 
 export const API_BASE_URL =

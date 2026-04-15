@@ -218,11 +218,13 @@ const authSlice=createSlice({
                 state.loggedInUser=action.payload
                 state.isAuthChecked=true
             })
-            .addCase(checkAuthAsync.rejected,(state,action)=>{
-                state.status='rejected'
-                state.errors=action.error
-                state.isAuthChecked=true
-            })
+            // Tìm đoạn này trong AuthSlice.jsx
+.addCase(checkAuthAsync.rejected, (state, action) => {
+    state.status = 'rejected'; // Hoặc 'idle'
+    state.errors = action.error;
+    state.isAuthChecked = true;
+    state.loggedInUser = null; // Đảm bảo khi lỗi (chưa login) thì user là null
+})
             
     }
 })

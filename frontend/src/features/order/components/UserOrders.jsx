@@ -131,8 +131,11 @@ export const UserOrders = () => {
                 </Stack>
               </Stack>
 
+
+
               <Stack rowGap={2}>
                 {order.item.map((item, index) => (
+
                   <Stack
                     key={`${order._id}-${index}`}
                     mt={2}
@@ -143,13 +146,13 @@ export const UserOrders = () => {
                   >
                     <Stack>
                       <img
-                        src={getImageUrl(item.product.images?.[0])}
+                        src={item.product ? getImageUrl(item.product.images?.[0]) : "https://via.placeholder.com/150"}
                         style={{
                           width: '100%',
                           aspectRatio: is480 ? 3 / 2 : 1 / 1,
                           objectFit: 'contain',
                         }}
-                        alt={item.product.title}
+                        alt={item.product?.title || "Sản phẩm không tồn tại"}
                       />
                     </Stack>
 
@@ -157,7 +160,7 @@ export const UserOrders = () => {
                       <Stack flexDirection="row" justifyContent="space-between">
                         <Stack>
                           <Typography variant="h6" fontSize="1rem" fontWeight={500}>
-                            {item.product.title}
+                            {item.product?.title || "Sản phẩm không tồn tại"}
                           </Typography>
                           <Typography variant="body1" fontSize=".9rem" color="text.secondary">
                             {item.product?.brand?.name || item.product?.brand || 'Thuong hieu dang cap nhat'}
@@ -166,16 +169,16 @@ export const UserOrders = () => {
                             Qty: {item.quantity}
                           </Typography>
                         </Stack>
-                        <Typography>{formatCurrency(item.product.price)}</Typography>
+                        <Typography>{item.product ? formatCurrency(item.product.price) : "0đ"}</Typography>
                       </Stack>
 
-                      <Typography color="text.secondary">{item.product.description}</Typography>
+                      <Typography color="text.secondary">{item.product?.description || ""}</Typography>
 
                       <Stack mt={2} alignSelf={is480 ? 'flex-start' : 'flex-end'} flexDirection="row" columnGap={2}>
                         <Button
                           size="small"
                           component={Link}
-                          to={`/product-details/${item.product._id}`}
+                          to={item.product ? `/product-details/${item.product._id}` : "#"}
                           variant="outlined"
                         >
                           Xem chi tiết sản phẩm

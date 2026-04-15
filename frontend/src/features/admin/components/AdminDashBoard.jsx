@@ -24,12 +24,12 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  FormGroup,
 } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Checkbox from '@mui/material/Checkbox'
-import FormGroup from '@mui/material/FormGroup'
 import AddIcon from '@mui/icons-material/Add'
 import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -75,6 +75,7 @@ import { AdminEmptyState } from './AdminEmptyState'
 import { AdminCommerceOverview } from './AdminCommerceOverview'
 import { AdminMetricCard } from './AdminMetricCard'
 import { AdminSurface } from './AdminSurface'
+import PaginationItem from '@mui/material/PaginationItem';
 
 export const AdminDashBoard = () => {
   const [analyticsRange, setAnalyticsRange] = useState('30d')
@@ -195,28 +196,28 @@ export const AdminDashBoard = () => {
 
     return [
       {
-        label: 'Listing dang hien thi',
+        label: 'Listing đang hiển thị',
         value: products.length,
-        helper: `Trong tong ${totalResults} ket qua phu hop`,
-        icon: <Inventory2OutlinedIcon color="primary" />,
+        helper: `Tổng ${totalResults} kết quả`,
+        icon: <Inventory2OutlinedIcon fontSize="small" color="primary" />,
       },
       {
-        label: 'San pham sap het',
+        label: 'Sản phẩm sắp hết',
         value: lowStockCount,
-        helper: 'Muc ton kho tu 1 den 20',
-        icon: <WarningAmberRoundedIcon sx={{ color: '#ed6c02' }} />,
+        helper: 'Kho từ 1 đến 20',
+        icon: <WarningAmberRoundedIcon fontSize="small" sx={{ color: '#ed6c02' }} />,
       },
       {
-        label: 'San pham het hang',
+        label: 'Sản phẩm hết hàng',
         value: outOfStockCount,
-        helper: 'Can bo sung de tranh mat doanh thu',
-        icon: <DeleteOutlineRoundedIcon sx={{ color: '#d32f2f' }} />,
+        helper: 'Cần bổ sung hàng',
+        icon: <DeleteOutlineRoundedIcon fontSize="small" sx={{ color: '#d32f2f' }} />,
       },
       {
-        label: 'San pham dang ban',
+        label: 'Sản phẩm đang bán',
         value: activeCount,
-        helper: `${deletedCount} listing dang tam an`,
-        icon: <StorefrontOutlinedIcon sx={{ color: '#2e7d32' }} />,
+        helper: `${deletedCount} listing tạm ẩn`,
+        icon: <StorefrontOutlinedIcon fontSize="small" sx={{ color: '#2e7d32' }} />,
       },
     ]
   }, [products, totalResults])
@@ -251,7 +252,7 @@ export const AdminDashBoard = () => {
           height: '100vh',
           padding: '1rem',
           overflowY: 'auto',
-          width: is500 ? '100vw' : '30rem',
+          width: is500 ? '100vw' : '26rem',
           zIndex: 1500,
           top: 0,
           boxShadow: '0 20px 80px rgba(15,23,42,0.22)',
@@ -260,33 +261,34 @@ export const AdminDashBoard = () => {
         initial="hide"
         animate={isProductFilterOpen ? 'show' : 'hide'}
       >
-        <Stack mb={6}>
-          <Typography variant="h5" fontWeight={800}>
-            Bo loc nang cao
+        <Stack mb={4}>
+          <Typography variant="h6" fontWeight={800}>
+            Bộ lọc nâng cao
           </Typography>
-          <Typography mt={1} color="text.secondary">
-            Chon nhanh brand va danh muc de thu hep danh sach listing can thao tac.
+          <Typography variant="body2" mt={0.5} color="text.secondary">
+            Thu hẹp danh sách listing cần thao tác.
           </Typography>
 
           <IconButton
+            size="small"
             onClick={handleFilterClose}
-            sx={{ position: 'absolute', top: 15, right: 15 }}
+            sx={{ position: 'absolute', top: 12, right: 12 }}
           >
-            <ClearIcon />
+            <ClearIcon fontSize="small" />
           </IconButton>
 
-          <Stack mt={3}>
-            <Accordion elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-              <AccordionSummary expandIcon={<AddIcon />}>
-                <Typography fontWeight={700}>Thuong hieu</Typography>
+          <Stack mt={2.5}>
+            <Accordion elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+              <AccordionSummary expandIcon={<AddIcon fontSize="small" />}>
+                <Typography variant="body2" fontWeight={700}>Thương hiệu</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ p: 0 }}>
                 <FormGroup onChange={handleBrandFilters}>
                   {brands?.map((brand) => (
                     <FormControlLabel
                       key={brand._id}
-                      sx={{ ml: 1 }}
-                      control={<Checkbox checked={(filters.brand || []).includes(brand._id)} />}
+                      sx={{ ml: 0.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                      control={<Checkbox size="small" checked={(filters.brand || []).includes(brand._id)} />}
                       label={brand.name}
                       value={brand._id}
                     />
@@ -296,19 +298,19 @@ export const AdminDashBoard = () => {
             </Accordion>
           </Stack>
 
-          <Stack mt={2}>
-            <Accordion elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-              <AccordionSummary expandIcon={<AddIcon />}>
-                <Typography fontWeight={700}>Danh muc</Typography>
+          <Stack mt={1.5}>
+            <Accordion elevation={0} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+              <AccordionSummary expandIcon={<AddIcon fontSize="small" />}>
+                <Typography variant="body2" fontWeight={700}>Danh mục</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ p: 0 }}>
                 <FormGroup onChange={handleCategoryFilters}>
                   {categories?.map((category) => (
                     <FormControlLabel
                       key={category._id}
-                      sx={{ ml: 1 }}
+                      sx={{ ml: 0.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
                       control={
-                        <Checkbox checked={(filters.category || []).includes(category._id)} />
+                        <Checkbox size="small" checked={(filters.category || []).includes(category._id)} />
                       }
                       label={category.name}
                       value={category._id}
@@ -321,7 +323,7 @@ export const AdminDashBoard = () => {
         </Stack>
       </motion.div>
 
-      <Stack rowGap={4} mb="2rem" px={is488 ? 0 : 0.5}>
+      <Stack rowGap={1.5} mb="1.5rem" px={is488 ? 0 : 0.5}>
         <AdminCommerceOverview
           analytics={analytics}
           orderStatsStatus={orderStatsStatus}
@@ -330,31 +332,33 @@ export const AdminDashBoard = () => {
         />
 
         <AdminSurface
-          title="Product Operation Desk"
-          description="Quan ly danh muc san pham theo kieu seller center: tim nhanh listing, theo doi ton kho va xu ly thao tac ngay tai bang."
+          title="Bàn làm việc vận hành"
+          description="Quản lý danh mục sản phẩm theo kiểu Seller Center."
           actions={
-            <Stack direction={is500 ? 'column' : 'row'} gap={1.2}>
+            <Stack direction={is500 ? 'column' : 'row'} gap={1}>
               <Button
+                size="small"
                 variant="outlined"
                 color="inherit"
-                startIcon={<TuneRoundedIcon />}
+                startIcon={<TuneRoundedIcon fontSize="small" />}
                 onClick={() => dispatch(toggleFilters())}
               >
-                Bo loc nang cao
+                Bộ lọc
               </Button>
               <Button
+                size="small"
                 component={Link}
                 to="/admin/add-product"
                 variant="contained"
-                startIcon={<AddBoxRoundedIcon />}
+                startIcon={<AddBoxRoundedIcon fontSize="small" />}
               >
-                Dang san pham moi
+                Đăng sản phẩm
               </Button>
             </Stack>
           }
         />
 
-        <Grid container spacing={2}>
+        <Grid container spacing={1.5}>
           {visibleStats.map((item) => (
             <Grid key={item.label} item xs={12} sm={6} xl={3}>
               <AdminMetricCard
@@ -362,7 +366,7 @@ export const AdminDashBoard = () => {
                 value={item.value}
                 helper={item.helper}
                 icon={item.icon}
-                sx={{ minHeight: 156 }}
+                sx={{ minHeight: 120, '& .MuiTypography-h4': { fontSize: '1.5rem' } }}
               />
             </Grid>
           ))}
@@ -375,26 +379,27 @@ export const AdminDashBoard = () => {
                 component="form"
                 onSubmit={handleSearchSubmit}
                 direction={is1200 ? 'column' : 'row'}
-                gap={2}
+                gap={1.5}
               >
                 <TextField
                   fullWidth
+                  size="small"
                   value={searchInput}
                   onChange={(event) => setSearchInput(event.target.value)}
-                  placeholder="Tim theo ten san pham, brand hoac ma listing"
+                  placeholder="Tìm sản phẩm, brand..."
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchRoundedIcon />
+                        <SearchRoundedIcon fontSize="small" />
                       </InputAdornment>
                     ),
                   }}
                 />
 
-                <FormControl fullWidth>
-                  <InputLabel>Sap xep</InputLabel>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Sắp xếp</InputLabel>
                   <Select
-                    label="Sap xep"
+                    label="Sắp xếp"
                     value={sort.name}
                     onChange={(event) =>
                       setSort(
@@ -404,119 +409,84 @@ export const AdminDashBoard = () => {
                     }
                   >
                     {productSortOptions.map((option) => (
-                      <MenuItem key={option.name} value={option.name}>
+                      <MenuItem key={option.name} value={option.name} sx={{ fontSize: '0.875rem' }}>
                         {option.name}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
 
-                <FormControl fullWidth>
-                  <InputLabel>Ton kho</InputLabel>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Tồn kho</InputLabel>
                   <Select
-                    label="Ton kho"
+                    label="Tồn kho"
                     value={stockStatus}
                     onChange={(event) => setStockStatus(event.target.value)}
                   >
                     {stockFilterOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
+                      <MenuItem key={option.value} value={option.value} sx={{ fontSize: '0.875rem' }}>
                         {option.label}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
 
-                <FormControl fullWidth>
-                  <InputLabel>Trang thai</InputLabel>
-                  <Select
-                    label="Trang thai"
-                    value={deleteStatus}
-                    onChange={(event) => setDeleteStatus(event.target.value)}
-                  >
-                    {visibilityFilterOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Button type="submit" variant="contained" sx={{ minWidth: is1200 ? '100%' : 124 }}>
-                  Tim ngay
+                <Button type="submit" size="small" variant="contained" sx={{ minWidth: is1200 ? '100%' : 100 }}>
+                  Tìm
                 </Button>
               </Stack>
 
-              <Stack mt={2} direction="row" gap={1} flexWrap="wrap">
-                <Chip label={`Tong ket qua: ${totalResults}`} color="primary" variant="outlined" />
-                {searchQuery ? <Chip label={`Tu khoa: ${searchQuery}`} /> : null}
-                {stockStatus !== 'all' ? (
-                  <Chip
-                    label={`Ton kho: ${
-                      stockFilterOptions.find((option) => option.value === stockStatus)?.label
-                    }`}
-                  />
-                ) : null}
-                {deleteStatus !== 'all' ? (
-                  <Chip
-                    label={`Trang thai: ${
-                      visibilityFilterOptions.find((option) => option.value === deleteStatus)?.label
-                    }`}
-                  />
-                ) : null}
-                {hasActiveFilters ? (
-                  <Button size="small" color="inherit" onClick={handleResetAllFilters}>
-                    Xoa toan bo bo loc
+              <Stack mt={1.5} direction="row" gap={0.8} flexWrap="wrap">
+                <Chip size="small" label={`Kết quả: ${totalResults}`} color="primary" variant="outlined" />
+                {searchQuery && <Chip size="small" label={`Từ khóa: ${searchQuery}`} />}
+                {hasActiveFilters && (
+                  <Button size="small" sx={{ fontSize: '0.75rem' }} color="inherit" onClick={handleResetAllFilters}>
+                    Xóa lọc
                   </Button>
-                ) : null}
+                )}
               </Stack>
             </AdminSurface>
           </Grid>
 
           <Grid item xs={12} lg={4}>
-            <AdminSurface title="Hang doi can xu ly" sx={{ height: '100%' }}>
-              <Stack rowGap={2}>
+            <AdminSurface title="Cần xử lý" sx={{ height: '100%' }}>
+              <Stack rowGap={1}>
                 {priorityQueue.length ? (
                   priorityQueue.map((product) => {
                     const stockMeta = getStockMeta(product.stockQuantity)
-
                     return (
                       <Stack
                         key={product._id}
                         direction="row"
                         justifyContent="space-between"
                         alignItems="center"
-                        gap={1.5}
-                        py={1.2}
+                        gap={1}
+                        py={0.8}
                         borderBottom="1px solid"
                         borderColor="divider"
                       >
-                        <Stack direction="row" gap={1.2} alignItems="center" minWidth={0}>
+                        <Stack direction="row" gap={1} alignItems="center" minWidth={0}>
                           <Avatar
                             src={getImageUrl(product.thumbnail)}
                             variant="rounded"
-                            sx={{ width: 46, height: 46 }}
+                            sx={{ width: 32, height: 32 }}
                           />
-                          <Stack minWidth={0}>
-                            <Typography fontWeight={700} noWrap>
-                              {product.title}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" noWrap>
-                              {product.brand?.name || 'Thuong hieu dang cap nhat'}
-                            </Typography>
-                          </Stack>
+                          <Typography variant="body2" fontWeight={600} noWrap>
+                            {product.title}
+                          </Typography>
                         </Stack>
-
                         <Chip
                           size="small"
+                          sx={{ fontSize: '0.65rem', height: 20 }}
                           color={product.isDeleted ? 'error' : stockMeta.color}
-                          label={product.isDeleted ? 'Tam an' : stockMeta.label}
+                          label={product.isDeleted ? 'Tạm ẩn' : stockMeta.label}
                         />
                       </Stack>
                     )
                   })
                 ) : (
-                  <Typography color="text.secondary">
-                    Chua co listing nao can uu tien xu ly trong trang hien tai.
+                  <Typography variant="caption" color="text.secondary">
+                    Chưa có listing ưu tiên.
                   </Typography>
                 )}
               </Stack>
@@ -525,64 +495,40 @@ export const AdminDashBoard = () => {
         </Grid>
 
         {productFetchStatus === 'pending' && !products.length ? (
-          <AdminSurface sx={{ p: 5 }}>
-            <Stack alignItems="center" rowGap={2}>
-              <Typography variant="h6" fontWeight={700}>
-                Dang dong bo danh sach san pham
-              </Typography>
-              <Typography color="text.secondary">
-                He thong dang tai listing, ton kho va gia ban moi nhat.
-              </Typography>
+          <AdminSurface sx={{ p: 3 }}>
+            <Stack alignItems="center" rowGap={1}>
+              <Typography variant="body1" fontWeight={700}>Đang đồng bộ dữ liệu...</Typography>
             </Stack>
           </AdminSurface>
         ) : products.length ? (
-          <AdminSurface
-            sx={{
-              p: 0,
-              borderRadius: 5,
-              overflow: 'hidden',
-            }}
-          >
+          <AdminSurface sx={{ p: 0, borderRadius: 3, overflow: 'hidden' }}>
             <Stack
-              direction={{ xs: 'column', md: 'row' }}
+              direction="row"
               justifyContent="space-between"
-              alignItems={{ xs: 'flex-start', md: 'center' }}
-              px={{ xs: 2, md: 3 }}
-              py={2}
-              gap={1}
+              alignItems="center"
+              px={2}
+              py={1.5}
               sx={{ bgcolor: '#fff' }}
             >
-              <Stack rowGap={0.4}>
-                <Typography variant="h6" fontWeight={800}>
-                  Danh sach listing
-                </Typography>
-                <Typography color="text.secondary">
-                  Quan ly san pham theo trang thai hien thi, ton kho va hieu qua thao tac.
-                </Typography>
-              </Stack>
-
-              {productFetchStatus === 'pending' ? (
-                <Chip label="Dang cap nhat du lieu" color="warning" variant="outlined" />
-              ) : null}
+              <Typography variant="body1" fontWeight={800}>
+                Danh sách listing
+              </Typography>
+              {productFetchStatus === 'pending' && (
+                <Chip size="small" label="Đang tải..." color="warning" variant="outlined" />
+              )}
             </Stack>
 
-            {productFetchStatus === 'pending' ? (
-              <LinearProgress />
-            ) : null}
+            {productFetchStatus === 'pending' && <LinearProgress sx={{ height: 2 }} />}
 
-            <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-              <Table aria-label="admin products table" sx={{ minWidth: 980 }}>
+            <TableContainer>
+              <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    <TableCell sx={{ fontWeight: 700 }}>San pham</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Danh muc</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Gia ban</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Ton kho</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Trang thai</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Hieu luc</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      Hanh dong
-                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, py: 1 }}>Sản phẩm</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Giá</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Tồn kho</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Trạng thái</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>Thao tác</TableCell>
                   </TableRow>
                 </TableHead>
 
@@ -593,97 +539,55 @@ export const AdminDashBoard = () => {
 
                     return (
                       <TableRow key={product._id} hover>
-                        <TableCell>
-                          <Stack direction="row" gap={1.5} alignItems="center" minWidth={250}>
+                        <TableCell sx={{ py: 1 }}>
+                          <Stack direction="row" gap={1} alignItems="center">
                             <Avatar
                               src={getImageUrl(product.thumbnail)}
                               variant="rounded"
-                              sx={{ width: 64, height: 64, borderRadius: 3 }}
+                              sx={{ width: 48, height: 48, borderRadius: 1.5 }}
                             />
-                            <Stack rowGap={0.5} minWidth={0}>
-                              <Typography fontWeight={700} noWrap>
+                            <Stack minWidth={0}>
+                              <Typography variant="body2" fontWeight={700} noWrap>
                                 {product.title}
                               </Typography>
-                              <Typography variant="body2" color="text.secondary" noWrap>
-                                {product.brand?.name || 'Thuong hieu dang cap nhat'}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                ID: {product._id.slice(-8).toUpperCase()}
+                              <Typography variant="caption" color="text.secondary" noWrap>
+                                {product.brand?.name}
                               </Typography>
                             </Stack>
                           </Stack>
                         </TableCell>
+                        <TableCell sx={{ fontSize: '0.875rem' }}>{formatCurrency(product.price)}</TableCell>
                         <TableCell>
-                          {product.category?.name || 'Chua gan danh muc'}
-                        </TableCell>
-                        <TableCell>{formatCurrency(product.price)}</TableCell>
-                        <TableCell>
-                          <Stack rowGap={0.8} minWidth={140}>
-                            <Stack direction="row" justifyContent="space-between">
-                              <Typography fontWeight={700}>{product.stockQuantity}</Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {stockMeta.label}
-                              </Typography>
-                            </Stack>
+                          <Stack spacing={0.5} sx={{ minWidth: 100 }}>
+                            <Typography variant="caption" fontWeight={700}>{product.stockQuantity}</Typography>
                             <LinearProgress
                               variant="determinate"
                               value={stockMeta.progress}
                               color={stockMeta.color}
-                              sx={{ height: 8, borderRadius: 999 }}
+                              sx={{ height: 4, borderRadius: 2 }}
                             />
-                            <Typography variant="caption" color="text.secondary">
-                              {stockMeta.helper}
-                            </Typography>
                           </Stack>
                         </TableCell>
                         <TableCell>
-                          <Chip
-                            size="small"
-                            label={stockMeta.label}
-                            color={stockMeta.color}
-                            variant={stockMeta.color === 'warning' ? 'outlined' : 'filled'}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip size="small" label={visibilityMeta.label} color={visibilityMeta.color} />
+                          <Chip size="small" label={visibilityMeta.label} color={visibilityMeta.color} sx={{ fontSize: '0.7rem' }} />
                         </TableCell>
                         <TableCell align="right">
-                          <Stack
-                            direction={is700 ? 'column' : 'row'}
-                            gap={1}
-                            justifyContent="flex-end"
-                            alignItems={is700 ? 'stretch' : 'center'}
-                          >
-                            <Button
+                          <Stack direction="row" gap={0.5} justifyContent="flex-end">
+                            <IconButton
+                              size="small"
                               component={Link}
                               to={`/admin/product-update/${product._id}`}
-                              variant="contained"
-                              size="small"
-                              startIcon={<EditRoundedIcon />}
+                              color="primary"
                             >
-                              Cap nhat
-                            </Button>
-                            {product.isDeleted ? (
-                              <Button
-                                onClick={() => handleUnDelete(product._id)}
-                                variant="outlined"
-                                color="success"
-                                size="small"
-                                startIcon={<StorefrontOutlinedIcon />}
-                              >
-                                Khoi phuc
-                              </Button>
-                            ) : (
-                              <Button
-                                onClick={() => handleDelete(product._id)}
-                                variant="outlined"
-                                color="error"
-                                size="small"
-                                startIcon={<VisibilityOffRoundedIcon />}
-                              >
-                                Tam an
-                              </Button>
-                            )}
+                              <EditRoundedIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => product.isDeleted ? handleUnDelete(product._id) : handleDelete(product._id)}
+                              color={product.isDeleted ? 'success' : 'error'}
+                            >
+                              {product.isDeleted ? <StorefrontOutlinedIcon fontSize="small" /> : <VisibilityOffRoundedIcon fontSize="small" />}
+                            </IconButton>
                           </Stack>
                         </TableCell>
                       </TableRow>
@@ -694,35 +598,48 @@ export const AdminDashBoard = () => {
             </TableContainer>
           </AdminSurface>
         ) : (
-          <AdminEmptyState
-            title="Khong co san pham phu hop"
-            description="Thu doi tu khoa tim kiem hoac bo bot bo loc de xem them listing."
-            actionLabel={hasActiveFilters ? 'Xem toan bo san pham' : undefined}
-            onAction={hasActiveFilters ? handleResetAllFilters : undefined}
-          />
+          <AdminEmptyState title="Không có kết quả" onAction={handleResetAllFilters} />
         )}
 
-        <Stack
-          alignSelf={is488 ? 'center' : 'flex-end'}
-          rowGap={2}
-          p={is488 ? 1 : 0}
-        >
-          <Pagination
-            size={is488 ? 'medium' : 'large'}
-            page={page}
-            onChange={(event, nextPage) => setPage(nextPage)}
-            count={Math.ceil(totalResults / ITEMS_PER_PAGE) || 1}
-            variant="outlined"
-            shape="rounded"
-            siblingCount={0}
-            boundaryCount={1}
-          />
+        {/* Customized Pagination Logic */}
+        {(() => {
+          const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
+          return (
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mt={2}>
+              <Typography variant="caption" color="text.secondary">
+                Trang {page} / {totalPages}
+              </Typography>
 
-          <Typography textAlign="center" color="text.secondary">
-            Trang {page} dang hien thi {products.length} listing
-          </Typography>
-        </Stack>
+              <Pagination
+                size="small"
+                page={page}
+                onChange={(e, p) => setPage(p)}
+                count={totalPages || 1}
+                shape="rounded"
+                renderItem={(item) => {
+                  if (totalPages <= 3) {
+                    return <PaginationItem {...item} />;
+                  }
+
+                  const allowedPages = [1, 2, 3, totalPages];
+
+                  if (
+                    item.type === 'page' &&
+                    !allowedPages.includes(item.page)
+                  ) {
+                    if (item.page === 4) {
+                      return <PaginationItem {...item} page="..." disabled />;
+                    }
+                    return null;
+                  }
+
+                  return <PaginationItem {...item} />;
+                }}
+              />
+            </Stack>
+          );
+        })()}
       </Stack>
     </>
   )
-}
+} 

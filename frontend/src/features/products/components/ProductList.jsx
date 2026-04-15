@@ -1,437 +1,363 @@
-import {
-  Button,
-  Chip,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Pagination,
-  Paper,
-  Select,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
-import React, { useEffect, useMemo, useState } from 'react'
+import { FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useSearchParams } from 'react-router-dom'
-import Accordion from '@mui/material/Accordion'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import AccordionDetails from '@mui/material/AccordionDetails'
-import Checkbox from '@mui/material/Checkbox'
-import AddIcon from '@mui/icons-material/Add'
-import ClearIcon from '@mui/icons-material/Clear'
-import TuneRoundedIcon from '@mui/icons-material/TuneRounded'
-import { motion } from 'framer-motion'
-import Lottie from 'lottie-react'
-import { toast } from 'react-toastify'
-
-import {
-  fetchProductsAsync,
-  resetProductFetchStatus,
-  selectProductFetchStatus,
-  selectProductIsFilterOpen,
-  selectProductTotalResults,
-  selectProducts,
-  toggleFilters,
-} from '../ProductSlice'
+import { useSearchParams } from 'react-router-dom';
+import { fetchProductsAsync, resetProductFetchStatus, selectProductFetchStatus, selectProductIsFilterOpen, selectProductTotalResults, selectProducts, toggleFilters } from '../ProductSlice'
 import { ProductCard } from './ProductCard'
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AddIcon from '@mui/icons-material/Add';
 import { selectBrands } from '../../brands/BrandSlice'
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import { selectCategories } from '../../categories/CategoriesSlice'
+import Pagination from '@mui/material/Pagination';
+import PaginationItem from '@mui/material/PaginationItem';
 import { ITEMS_PER_PAGE } from '../../../constants'
-import {
-  createWishlistItemAsync,
-  deleteWishlistItemByIdAsync,
-  resetWishlistItemAddStatus,
-  resetWishlistItemDeleteStatus,
-  selectWishlistItemAddStatus,
-  selectWishlistItemDeleteStatus,
-  selectWishlistItems,
-} from '../../wishlist/WishlistSlice'
+import { createWishlistItemAsync, deleteWishlistItemByIdAsync, resetWishlistItemAddStatus, resetWishlistItemDeleteStatus, selectWishlistItemAddStatus, selectWishlistItemDeleteStatus, selectWishlistItems } from '../../wishlist/WishlistSlice'
 import { selectLoggedInUser } from '../../auth/AuthSlice'
+import { toast } from 'react-toastify'
 import { banner1, banner2, banner3, banner4, loadingAnimation } from '../../../assets'
 import { resetCartItemAddStatus, selectCartItemAddStatus } from '../../cart/CartSlice'
+import { motion } from 'framer-motion'
 import { ProductBanner } from './ProductBanner'
+import ClearIcon from '@mui/icons-material/Clear';
+import Lottie from 'lottie-react'
 
 const sortOptions = [
-  { label: 'Mới nhất', sort: 'createdAt', order: 'desc' },
-  { label: 'Giá: thấp đến cao', sort: 'price', order: 'asc' },
-  { label: 'Giá: cao đến thấp', sort: 'price', order: 'desc' },
+    { name: "Giá: từ thấp đến cao", sort: "price", order: "asc" },
+    { name: "Giá: từ cao đến thấp", sort: "price", order: "desc" },
 ]
 
 const bannerImages = [banner1, banner3, banner2, banner4]
 
 export const ProductList = () => {
-  const [filters, setFilters] = useState({ brand: [], category: [] })
-  const [page, setPage] = useState(1)
-  const [sortLabel, setSortLabel] = useState(sortOptions[0].label)
-  const [searchParams, setSearchParams] = useSearchParams()
+    const [filters, setFilters] = useState({})
+    const [page, setPage] = useState(1)
+    const [sort, setSort] = useState(null)
+    const theme = useTheme()
 
-  const theme = useTheme()
-  const dispatch = useDispatch()
+    const [searchParams] = useSearchParams();
+    const keyword = searchParams.get("search");
 
-  const is1200 = useMediaQuery(theme.breakpoints.down(1200))
-  const is800 = useMediaQuery(theme.breakpoints.down(800))
-  const is700 = useMediaQuery(theme.breakpoints.down(700))
-  const is600 = useMediaQuery(theme.breakpoints.down(600))
-  const is500 = useMediaQuery(theme.breakpoints.down(500))
-  const is488 = useMediaQuery(theme.breakpoints.down(488))
+    const [prevKeyword, setPrevKeyword] = useState(keyword);
 
-  const brands = useSelector(selectBrands)
-  const categories = useSelector(selectCategories)
-  const products = useSelector(selectProducts)
-  const totalResults = useSelector(selectProductTotalResults)
-  const loggedInUser = useSelector(selectLoggedInUser)
-  const productFetchStatus = useSelector(selectProductFetchStatus)
-  const wishlistItems = useSelector(selectWishlistItems)
-  const wishlistItemAddStatus = useSelector(selectWishlistItemAddStatus)
-  const wishlistItemDeleteStatus = useSelector(selectWishlistItemDeleteStatus)
-  const cartItemAddStatus = useSelector(selectCartItemAddStatus)
-  const isProductFilterOpen = useSelector(selectProductIsFilterOpen)
-
-  const keyword = searchParams.get('search')?.trim() || ''
-  const selectedSort = useMemo(
-    () => sortOptions.find((option) => option.label === sortLabel) || sortOptions[0],
-    [sortLabel]
-  )
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' })
-  }, [])
-
-  useEffect(() => {
-    setPage(1)
-  }, [filters.brand, filters.category, keyword, sortLabel])
-
-  useEffect(() => {
-    const finalFilters = {
-      ...filters,
-      pagination: { page, limit: ITEMS_PER_PAGE },
-      sort: selectedSort,
+    if (keyword !== prevKeyword) {
+        setFilters({});
+        setPage(1);
+        setPrevKeyword(keyword);
     }
 
-    if (keyword) {
-      finalFilters.search = keyword
+    const is1200 = useMediaQuery(theme.breakpoints.down(1200))
+    const is800 = useMediaQuery(theme.breakpoints.down(800))
+    const is700 = useMediaQuery(theme.breakpoints.down(700))
+    const is600 = useMediaQuery(theme.breakpoints.down(600))
+    const is500 = useMediaQuery(theme.breakpoints.down(500))
+    const is488 = useMediaQuery(theme.breakpoints.down(488))
+
+    const brands = useSelector(selectBrands)
+    const categories = useSelector(selectCategories)
+    const products = useSelector(selectProducts)
+    const totalResults = useSelector(selectProductTotalResults)
+    const loggedInUser = useSelector(selectLoggedInUser)
+
+    const productFetchStatus = useSelector(selectProductFetchStatus)
+
+    const wishlistItems = useSelector(selectWishlistItems)
+    const wishlistItemAddStatus = useSelector(selectWishlistItemAddStatus)
+    const wishlistItemDeleteStatus = useSelector(selectWishlistItemDeleteStatus)
+
+    const cartItemAddStatus = useSelector(selectCartItemAddStatus)
+
+    const isProductFilterOpen = useSelector(selectProductIsFilterOpen)
+
+    const dispatch = useDispatch()
+
+    const handleBrandFilters = (e) => {
+        const filterSet = new Set(filters.brand)
+        if (e.target.checked) { filterSet.add(e.target.value) }
+        else { filterSet.delete(e.target.value) }
+
+        const filterArray = Array.from(filterSet);
+        setFilters({ ...filters, brand: filterArray })
     }
 
-    if (!loggedInUser?.isAdmin) {
-      finalFilters.user = true
+    const handleCategoryFilters = (e) => {
+        const filterSet = new Set(filters.category)
+        if (e.target.checked) { filterSet.add(e.target.value) }
+        else { filterSet.delete(e.target.value) }
+
+        const filterArray = Array.from(filterSet);
+        setFilters({ ...filters, category: filterArray })
     }
 
-    dispatch(fetchProductsAsync(finalFilters))
-  }, [dispatch, filters, keyword, loggedInUser?.isAdmin, page, selectedSort])
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: "instant"
+        })
+    }, [])
 
-  const handleBrandFilters = (event) => {
-    const nextValues = new Set(filters.brand)
-    if (event.target.checked) {
-      nextValues.add(event.target.value)
-    } else {
-      nextValues.delete(event.target.value)
+    useEffect(() => {
+        setPage(1)
+    }, [totalResults])
+
+    useEffect(() => {
+        const finalFilters = { ...filters }
+
+        finalFilters['pagination'] = { page: page, limit: ITEMS_PER_PAGE }
+        finalFilters['sort'] = sort
+
+        if (keyword) {
+            finalFilters['search'] = keyword;
+        }
+
+        if (!loggedInUser?.isAdmin) {
+            finalFilters['user'] = true
+        }
+
+        dispatch(fetchProductsAsync(finalFilters))
+
+    }, [filters, page, sort, keyword])
+
+
+    const handleAddRemoveFromWishlist = (e, productId) => {
+        if (e.target.checked) {
+            const data = { user: loggedInUser?._id, product: productId }
+            dispatch(createWishlistItemAsync(data))
+        }
+
+        else if (!e.target.checked) {
+            const index = wishlistItems.findIndex((item) => item.product._id === productId)
+            dispatch(deleteWishlistItemByIdAsync(wishlistItems[index]._id));
+        }
     }
 
-    setFilters((prev) => ({ ...prev, brand: [...nextValues] }))
-  }
+    useEffect(() => {
+        if (wishlistItemAddStatus === 'fulfilled') {
+            toast.success("Sản phẩm được thêm vào yêu thích")
+        }
+        else if (wishlistItemAddStatus === 'rejected') {
+            toast.error("Lỗi khi thêm sản phẩm vào danh sách yêu thích, vui lòng thử lại sau.")
+        }
 
-  const handleCategoryFilters = (event) => {
-    const nextValues = new Set(filters.category)
-    if (event.target.checked) {
-      nextValues.add(event.target.value)
-    } else {
-      nextValues.delete(event.target.value)
+    }, [wishlistItemAddStatus])
+
+    useEffect(() => {
+        if (wishlistItemDeleteStatus === 'fulfilled') {
+            toast.success("Sản phẩm đã bị xóa khỏi danh sách yêu thích")
+        }
+        else if (wishlistItemDeleteStatus === 'rejected') {
+            toast.error("Lỗi khi xóa sản phẩm khỏi danh sách yêu thích, vui lòng thử lại sau.")
+        }
+    }, [wishlistItemDeleteStatus])
+
+    useEffect(() => {
+        if (cartItemAddStatus === 'fulfilled') {
+            toast.success("Sản phẩm được thêm vào giỏ")
+        }
+        else if (cartItemAddStatus === 'rejected') {
+            toast.error("Lỗi khi thêm sản phẩm vào giỏ hàng, vui lòng thử lại sau.")
+        }
+
+    }, [cartItemAddStatus])
+
+    useEffect(() => {
+        if (productFetchStatus === 'rejected') {
+            toast.error("Không thể tải sản phẩm, vui lòng thử lại sau.")
+        }
+    }, [productFetchStatus])
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetProductFetchStatus())
+            dispatch(resetWishlistItemAddStatus())
+            dispatch(resetWishlistItemDeleteStatus())
+            dispatch(resetCartItemAddStatus())
+        }
+    }, [])
+
+    const handleFilterClose = () => {
+        dispatch(toggleFilters())
     }
 
-    setFilters((prev) => ({ ...prev, category: [...nextValues] }))
-  }
+    const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
 
-  const handleAddRemoveFromWishlist = (event, productId) => {
-    if (event.target.checked) {
-      dispatch(createWishlistItemAsync({ user: loggedInUser?._id, product: productId }))
-      return
-    }
-
-    const index = wishlistItems.findIndex((item) => item?.product?._id === productId)
-    if (index !== -1) {
-      dispatch(deleteWishlistItemByIdAsync(wishlistItems[index]._id))
-    }
-  }
-
-  const handleResetFilters = () => {
-    setFilters({ brand: [], category: [] })
-    setPage(1)
-    setSortLabel(sortOptions[0].label)
-  }
-
-  const handleClearSearch = () => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('search')
-    setSearchParams(nextParams)
-  }
-
-  useEffect(() => {
-    if (wishlistItemAddStatus === 'fulfilled') {
-      toast.success('Sản phẩm đã được thêm vào yêu thích')
-    } else if (wishlistItemAddStatus === 'rejected') {
-      toast.error('Không thể thêm sản phẩm vào danh sách yêu thích')
-    }
-  }, [wishlistItemAddStatus])
-
-  useEffect(() => {
-    if (wishlistItemDeleteStatus === 'fulfilled') {
-      toast.success('Sản phẩm đã được xóa khỏi yêu thích')
-    } else if (wishlistItemDeleteStatus === 'rejected') {
-      toast.error('Không thể xóa sản phẩm khỏi danh sách yêu thích')
-    }
-  }, [wishlistItemDeleteStatus])
-
-  useEffect(() => {
-    if (cartItemAddStatus === 'fulfilled') {
-      toast.success('Sản phẩm đã được thêm vào giỏ')
-    } else if (cartItemAddStatus === 'rejected') {
-      toast.error('Không thể thêm sản phẩm vào giỏ hàng')
-    }
-  }, [cartItemAddStatus])
-
-  useEffect(() => {
-    if (productFetchStatus === 'rejected') {
-      toast.error('Không thể tải sản phẩm, vui lòng thử lại sau')
-    }
-  }, [productFetchStatus])
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetProductFetchStatus())
-      dispatch(resetWishlistItemAddStatus())
-      dispatch(resetWishlistItemDeleteStatus())
-      dispatch(resetCartItemAddStatus())
-    }
-  }, [dispatch])
-
-  const hasActiveFilters =
-    filters.brand.length > 0 ||
-    filters.category.length > 0 ||
-    sortLabel !== sortOptions[0].label ||
-    Boolean(keyword)
-
-  const currentPageCount = Math.max(
-    0,
-    Math.min(ITEMS_PER_PAGE, totalResults - (page - 1) * ITEMS_PER_PAGE)
-  )
-
-  if (productFetchStatus === 'pending' && !products.length) {
     return (
-      <Stack width={is500 ? '35vh' : '25rem'} height="calc(100vh - 4rem)" justifyContent="center" mx="auto">
-        <Lottie animationData={loadingAnimation} />
-      </Stack>
-    )
-  }
-
-  return (
-    <>
-      <motion.div
-        style={{
-          position: 'fixed',
-          backgroundColor: 'white',
-          height: '100vh',
-          padding: '1rem',
-          overflowY: 'auto',
-          width: is500 ? '100vw' : '30rem',
-          zIndex: 500,
-          boxShadow: '0 12px 40px rgba(20,20,20,0.12)',
-        }}
-        variants={{ show: { left: 0 }, hide: { left: -500 } }}
-        initial="hide"
-        transition={{ ease: 'easeInOut', duration: 0.45 }}
-        animate={isProductFilterOpen ? 'show' : 'hide'}
-      >
-        <Stack mb="5rem">
-          <Typography variant="h4">Bo loc san pham</Typography>
-
-          <IconButton onClick={() => dispatch(toggleFilters())} sx={{ position: 'absolute', top: 15, right: 15 }}>
-            <ClearIcon />
-          </IconButton>
-
-          <Stack mt={2}>
-            <Accordion>
-              <AccordionSummary expandIcon={<AddIcon />}>
-                <Typography>Thuong hieu</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0 }}>
-                <FormGroup onChange={handleBrandFilters}>
-                  {brands?.map((brand) => (
-                    <FormControlLabel
-                      key={brand._id}
-                      sx={{ ml: 1 }}
-                      control={<Checkbox checked={filters.brand.includes(brand._id)} />}
-                      label={brand.name}
-                      value={brand._id}
-                    />
-                  ))}
-                </FormGroup>
-              </AccordionDetails>
-            </Accordion>
-          </Stack>
-
-          <Stack mt={2}>
-            <Accordion>
-              <AccordionSummary expandIcon={<AddIcon />}>
-                <Typography>Danh muc</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0 }}>
-                <FormGroup onChange={handleCategoryFilters}>
-                  {categories?.map((category) => (
-                    <FormControlLabel
-                      key={category._id}
-                      sx={{ ml: 1 }}
-                      control={<Checkbox checked={filters.category.includes(category._id)} />}
-                      label={category.name}
-                      value={category._id}
-                    />
-                  ))}
-                </FormGroup>
-              </AccordionDetails>
-            </Accordion>
-          </Stack>
-        </Stack>
-      </motion.div>
-
-      <Stack mb="3rem">
-        {!is600 && (
-          <Stack sx={{ width: '100%', height: is800 ? '300px' : is1200 ? '400px' : '500px' }}>
-            <ProductBanner images={bannerImages} />
-          </Stack>
-        )}
-
-        <Stack rowGap={4} mt={is600 ? 2 : 0} px={is488 ? 1.5 : 2}>
-          <Stack
-            component={Paper}
-            elevation={1}
-            sx={{
-              p: is488 ? 2 : 3,
-              borderRadius: 3,
-              mx: is488 ? 0 : 2,
-            }}
-          >
-            <Stack
-              direction={is700 ? 'column' : 'row'}
-              justifyContent="space-between"
-              alignItems={is700 ? 'stretch' : 'center'}
-              gap={2}
+        <>
+            <motion.div 
+                style={{ 
+                    position: "fixed", 
+                    backgroundColor: "white", 
+                    height: "100vh", 
+                    padding: '1rem', 
+                    overflowY: "auto", 
+                    width: is500 ? "100vw" : "30rem", 
+                    zIndex: 9999, 
+                    top: 0 
+                }} 
+                variants={{ show: { left: 0 }, hide: { left: is500 ? "-100vw" : "-30rem" } }} 
+                initial={'hide'} 
+                transition={{ ease: "easeInOut", duration: 0.4 }} 
+                animate={isProductFilterOpen ? "show" : "hide"}
             >
-              <Stack rowGap={0.5}>
-                <Typography variant="h5" fontWeight={700}>
-                  Khám phá sản phẩm
-                </Typography>
-                <Typography color="text.secondary">
-                  Danh sách được sắp xếp ổn định để bạn dễ theo dõi và mua sắm hơn.
-                </Typography>
-              </Stack>
+                <Stack mb={'5rem'} sx={{ scrollBehavior: "smooth" }}>
+                    <Typography variant='h4'>Bộ lọc sản phẩm</Typography>
+                    <IconButton onClick={handleFilterClose} style={{ position: "absolute", top: 15, right: 15 }}>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            <ClearIcon fontSize='medium' />
+                        </motion.div>
+                    </IconButton>
+                    
+                    <Stack mt={2}>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<AddIcon />} aria-controls="brand-filters" id="brand-filters">
+                                <Typography>Thương hiệu</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails sx={{ p: 0 }}>
+                                <FormGroup onChange={handleBrandFilters}>
+                                    {brands?.map((brand) => (
+                                        <motion.div style={{ width: "fit-content" }} whileHover={{ x: 5 }} whileTap={{ scale: 0.9 }} key={brand._id}>
+                                            <FormControlLabel sx={{ ml: 1 }} control={<Checkbox checked={filters.brand?.includes(brand._id) || false} />} label={brand.name} value={brand._id} />
+                                        </motion.div>
+                                    ))}
+                                </FormGroup>
+                            </AccordionDetails>
+                        </Accordion>
+                    </Stack>
 
-              <Stack direction={is488 ? 'column' : 'row'} gap={1.5} alignItems="center">
-                <Button
-                  variant="outlined"
-                  color="inherit"
-                  startIcon={<TuneRoundedIcon />}
-                  onClick={() => dispatch(toggleFilters())}
-                >
-                  Bộ lọc
-                </Button>
-
-                <FormControl sx={{ minWidth: is488 ? '100%' : '14rem' }}>
-                  <InputLabel id="sort-dropdown">Sắp xếp</InputLabel>
-                  <Select
-                    labelId="sort-dropdown"
-                    label="Sắp xếp"
-                    onChange={(event) => setSortLabel(event.target.value)}
-                    value={sortLabel}
-                  >
-                    {sortOptions.map((option) => (
-                      <MenuItem key={option.label} value={option.label}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Stack>
-            </Stack>
-
-            <Stack mt={2} direction="row" gap={1} flexWrap="wrap">
-              <Chip label={`Tong ket qua: ${totalResults}`} color="primary" variant="outlined" />
-              {keyword ? <Chip label={`Tu khoa: ${keyword}`} onDelete={handleClearSearch} /> : null}
-              {filters.brand.length ? <Chip label={`Thuong hieu: ${filters.brand.length}`} /> : null}
-              {filters.category.length ? <Chip label={`Danh muc: ${filters.category.length}`} /> : null}
-              {hasActiveFilters ? (
-                <Button size="small" color="inherit" onClick={handleResetFilters}>
-                  Xoa bo loc
-                </Button>
-              ) : null}
-            </Stack>
-          </Stack>
-
-          {products.length === 0 ? (
-            <Paper elevation={1} sx={{ p: 5, borderRadius: 3, mx: is488 ? 0 : 2 }}>
-              <Stack alignItems="center" rowGap={1.5}>
-                <Typography variant="h6" fontWeight={700}>
-                  Không có sản phẩm phù hợp
-                </Typography>
-                <Typography color="text.secondary" textAlign="center">
-                  Hãy thử đổi từ khóa tìm kiếm, bỏ bớt bộ lọc hoặc quay lại danh sách chung.
-                </Typography>
-                <Stack direction={is488 ? 'column' : 'row'} gap={1.5}>
-                  {keyword ? (
-                    <Button variant="outlined" onClick={handleClearSearch}>
-                      Xóa từ khóa tìm kiếm
-                    </Button>
-                  ) : null}
-                  <Button variant="contained" onClick={handleResetFilters}>
-                    Xem toàn bộ sản phẩm
-                  </Button>
+                    <Stack mt={2}>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<AddIcon />} aria-controls="category-filters" id="category-filters">
+                                <Typography>Phân loại sản phẩm</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails sx={{ p: 0 }}>
+                                <FormGroup onChange={handleCategoryFilters}>
+                                    {categories?.map((category) => (
+                                        <motion.div style={{ width: "fit-content" }} whileHover={{ x: 5 }} whileTap={{ scale: 0.9 }} key={category._id}>
+                                            <FormControlLabel sx={{ ml: 1 }} control={<Checkbox checked={filters.category?.includes(category._id) || false} />} label={category.name} value={category._id} />
+                                        </motion.div>
+                                    ))}
+                                </FormGroup>
+                            </AccordionDetails>
+                        </Accordion>
+                    </Stack>
                 </Stack>
-              </Stack>
-            </Paper>
-          ) : (
-            <Grid gap={is700 ? 1 : 2} container justifyContent="center" alignContent="center">
-              {products.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  id={product._id}
-                  title={product.title}
-                  thumbnail={product.thumbnail}
-                  brand={product.brand?.name || 'Thuong hieu dang cap nhat'}
-                  price={product.price}
-                  stockQuantity={product.stockQuantity}
-                  handleAddRemoveFromWishlist={handleAddRemoveFromWishlist}
-                />
-              ))}
-            </Grid>
-          )}
+            </motion.div>
 
-          <Stack
-            alignSelf={is488 ? 'center' : 'flex-end'}
-            mr={is488 ? 0 : 5}
-            rowGap={2}
-            p={is488 ? 1 : 0}
-          >
-            <Pagination
-              size={is488 ? 'medium' : 'large'}
-              page={page}
-              onChange={(event, nextPage) => setPage(nextPage)}
-              count={Math.max(1, Math.ceil(totalResults / ITEMS_PER_PAGE))}
-              variant="outlined"
-              shape="rounded"
-              siblingCount={0}
-              boundaryCount={1}
-            />
+            {productFetchStatus === 'pending' ? (
+                <Stack width={'100%'} height={'80vh'} justifyContent={'center'} alignItems={'center'}>
+                    <Lottie animationData={loadingAnimation} style={{ width: '200px' }} />
+                </Stack>
+            ) : (
+                <Stack mb={'3rem'}>
+                    {!is600 && (
+                        <Stack sx={{ width: "100%", height: is800 ? "300px" : is1200 ? "400px" : "500px" }}>
+                            <ProductBanner images={bannerImages} />
+                        </Stack>
+                    )}
 
-            <Typography textAlign="center">
-              Trang {page} có {currentPageCount} sản phẩm
-            </Typography>
-          </Stack>
-        </Stack>
-      </Stack>
-    </>
-  )
+                    <Stack rowGap={5} mt={is600 ? 2 : 0}>
+                        <Stack flexDirection={'row'} mr={'2rem'} justifyContent={'flex-end'} alignItems={'center'} columnGap={5}>
+                            <Stack alignSelf={'flex-end'} width={'12rem'}>
+                                <FormControl fullWidth>
+                                    <InputLabel id="sort-dropdown">Sắp xếp theo thứ tự</InputLabel>
+                                    <Select
+                                        variant='standard'
+                                        labelId="sort-dropdown"
+                                        label="Sort"
+                                        onChange={(e) => setSort(e.target.value)}
+                                        value={sort || ""}
+                                    >
+                                        <MenuItem value={null}>Reset</MenuItem>
+                                        {sortOptions.map((option) => (
+                                            <MenuItem key={option.name} value={option}>{option.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Stack>
+                        </Stack>
+
+                        {products.length === 0 ? (
+                            <Stack width="100%" alignItems="center" mt={5}>
+                                <Typography variant="h5" color="text.secondary">
+                                    Không có sản phẩm phù hợp
+                                </Typography>
+                            </Stack>
+                        ) : (
+                            <Grid container spacing={3} sx={{ padding: '0 1rem' }}>
+                                {products.map((product) => (
+                                    <Grid item sm={6} md={4} lg={3} xl={3} key={product._id} sx={{ display: 'flex' }}>
+                                        <ProductCard
+                                            id={product._id}
+                                            title={product.title}
+                                            thumbnail={product.thumbnail}
+                                            brand={product.brand}
+                                            price={product.price}
+                                            stockQuantity={product.stockQuantity}
+                                            handleAddRemoveFromWishlist={handleAddRemoveFromWishlist}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        )}
+
+                        <Stack
+                            alignSelf={is488 ? 'center' : 'flex-end'}
+                            mr={is488 ? 0 : 5}
+                            rowGap={2}
+                            p={is488 ? 1 : 0}
+                        >
+                            <Pagination
+                                size={is488 ? 'medium' : 'large'}
+                                page={page}
+                                onChange={(e, page) => setPage(page)}
+                                count={totalPages}
+                                variant="outlined"
+                                shape="rounded"
+                                renderItem={(item) => {
+                                    if (totalPages <= 3) return <PaginationItem {...item} />;
+
+                                    // Nếu đang ở trang 4 trở lên, trượt danh sách số
+                                    let startPage = page >= 4 ? page - 2 : 1;
+                                    let endPage = startPage + 2;
+
+                                    // Đảm bảo không vượt quá trang cuối
+                                    if (endPage >= totalPages) {
+                                        endPage = totalPages - 1;
+                                        startPage = Math.max(1, endPage - 2);
+                                    }
+
+                                    const allowedPages = [];
+                                    for (let i = startPage; i <= endPage; i++) {
+                                        allowedPages.push(i);
+                                    }
+                                    allowedPages.push(totalPages); // Luôn hiện trang cuối
+
+                                    if (item.type === 'page' && !allowedPages.includes(item.page)) {
+                                        // Hiện dấu ... thay cho trang nằm ngay sau dãy số trượt
+                                        if (item.page === endPage + 1 && endPage + 1 < totalPages) {
+                                            return <PaginationItem {...item} page="..." disabled />;
+                                        }
+                                        return null;
+                                    }
+
+                                    return <PaginationItem {...item} />;
+                                }}
+                            />
+                            <Typography textAlign="center">
+                                Trang {page} có{" "}
+                                {Math.min(
+                                    ITEMS_PER_PAGE,
+                                    totalResults - (page - 1) * ITEMS_PER_PAGE
+                                )} sản phẩm
+                            </Typography>
+                        </Stack>
+                    </Stack>
+                </Stack>
+            )}
+        </>
+    )
 }

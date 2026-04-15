@@ -10,8 +10,8 @@ import { AdminShell } from '../features/admin/components/AdminShell'
 export const ProductUpdatePage = () => {
   return (
     <AdminShell
-      title="Catalog Optimization"
-      description="Cap nhat listing, ton kho, media va thong tin gia ban trong mot khung quan tri nhat quan, de theo doi va toi uu nhanh hon."
+      title="Tối ưu hóa Danh mục"
+      description="Cập nhật sản phẩm, tồn kho, hình ảnh và thông tin giá bán trong một khung quản trị nhất quán, dễ theo dõi và tối ưu nhanh hơn."
       actions={
         <Stack direction="row" gap={1} flexWrap="wrap">
           <Button
@@ -21,7 +21,7 @@ export const ProductUpdatePage = () => {
             color="inherit"
             startIcon={<DashboardRoundedIcon />}
           >
-            Ve dashboard
+            Về bảng điều khiển
           </Button>
           <Button
             component={Link}
@@ -29,14 +29,14 @@ export const ProductUpdatePage = () => {
             variant="contained"
             startIcon={<LocalMallRoundedIcon />}
           >
-            Xem don hang
+            Xem đơn hàng
           </Button>
         </Stack>
       }
       stats={[
-        { label: 'Module', value: 'Listing edit' },
-        { label: 'Focus', value: 'Cap nhat kho' },
-        { label: 'Muc tieu', value: 'Toi uu chuyen doi' },
+        { label: 'Chức năng', value: 'Chỉnh sửa sản phẩm' },
+        { label: 'Trọng tâm', value: 'Cập nhật kho' },
+        { label: 'Mục tiêu', value: 'Tối ưu chuyển đổi' },
       ]}
     >
       <ProductUpdate />

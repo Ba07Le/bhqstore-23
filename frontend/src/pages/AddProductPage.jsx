@@ -10,8 +10,8 @@ import { AdminShell } from '../features/admin/components/AdminShell'
 export const AddProductPage = () => {
   return (
     <AdminShell
-      title="Catalog Creation"
-      description="Tao san pham moi voi thong tin ro rang, media day du va mot bo giao dien nhap lieu gan voi quy trinh van hanh thuong mai."
+      title="Khởi tạo danh mục"
+      description="Tạo sản phẩm mới với thông tin rõ ràng, hình ảnh đầy đủ và bộ giao diện nhập liệu tối ưu cho quy trình vận hành thương mại."
       actions={
         <Stack direction="row" gap={1} flexWrap="wrap">
           <Button
@@ -21,7 +21,7 @@ export const AddProductPage = () => {
             color="inherit"
             startIcon={<DashboardRoundedIcon />}
           >
-            Ve dashboard
+            Về bảng điều khiển
           </Button>
           <Button
             component={Link}
@@ -29,14 +29,14 @@ export const AddProductPage = () => {
             variant="contained"
             startIcon={<LocalMallRoundedIcon />}
           >
-            Xem don hang
+            Xem đơn hàng
           </Button>
         </Stack>
       }
       stats={[
-        { label: 'Module', value: 'Catalog' },
-        { label: 'Checklist', value: 'Media + gia' },
-        { label: 'Muc tieu', value: 'Dang ban nhanh' },
+        { label: 'Phân hệ', value: 'Danh mục' },
+        { label: 'Kiểm tra', value: 'Hình ảnh + Giá' },
+        { label: 'Mục tiêu', value: 'Đăng bán nhanh' },
       ]}
     >
       <AddProduct />

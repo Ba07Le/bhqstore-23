@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Box } from '@mui/material'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded'
 import PhotoLibraryRoundedIcon from '@mui/icons-material/PhotoLibraryRounded'
@@ -36,11 +37,12 @@ export const ProductUpdate = () => {
   }, [dispatch, id])
 
   useEffect(() => {
-    if (productUpdateStatus === 'fullfilled') {
-      toast.success('San pham da duoc cap nhat')
+    // 🔥 FIX typo quan trọng
+    if (productUpdateStatus === 'fulfilled') {
+      toast.success('Sản phẩm đã được cập nhật thành công')
       navigate('/admin/dashboard')
     } else if (productUpdateStatus === 'rejected') {
-      toast.error('Khong the cap nhat san pham, vui long thu lai sau')
+      toast.error('Không thể cập nhật sản phẩm, vui lòng thử lại sau')
     }
   }, [navigate, productUpdateStatus])
 
@@ -75,31 +77,47 @@ export const ProductUpdate = () => {
 
   if (!selectedProduct) {
     return (
-      <AdminSurface
-        title="Dang tai thong tin san pham"
-        description="He thong dang lay du lieu listing de ban co the cap nhat."
-      />
+      <Box
+        sx={{
+          transform: 'scale(0.8)',
+          transformOrigin: 'top left',
+          width: '125%',
+        }}
+      >
+        <AdminSurface
+          title="Đang tải thông tin sản phẩm"
+          description="Hệ thống đang lấy dữ liệu sản phẩm để bạn có thể cập nhật."
+        />
+      </Box>
     )
   }
 
   return (
-    <ProductEditorForm
-      key={selectedProduct._id}
-      mode="update"
-      introTitle="Toi uu listing hien tai"
-      introDescription="Dieu chinh noi dung, ton kho va media de giu listing luon san sang ban."
-      chips={[
-        { icon: <EditRoundedIcon />, label: 'Listing edit' },
-        { icon: <Inventory2RoundedIcon />, label: 'Kho va gia' },
-        { icon: <PhotoLibraryRoundedIcon />, label: 'Media refresh' },
-      ]}
-      initialProduct={selectedProduct}
-      brands={brands}
-      categories={categories}
-      submitStatus={productUpdateStatus}
-      submitLabel="Luu thay doi"
-      pendingLabel="Dang cap nhat..."
-      onSubmit={handleProductUpdate}
-    />
+    <Box
+      sx={{
+        transform: 'scale(0.8)',
+        transformOrigin: 'top left',
+        width: '125%',
+      }}
+    >
+      <ProductEditorForm
+        key={selectedProduct._id}
+        mode="update"
+        introTitle="Tối ưu sản phẩm hiện tại"
+        introDescription="Điều chỉnh nội dung, tồn kho và hình ảnh để sản phẩm luôn sẵn sàng bán."
+        chips={[
+          { icon: <EditRoundedIcon />, label: 'Chỉnh sửa nội dung' },
+          { icon: <Inventory2RoundedIcon />, label: 'Kho và giá' },
+          { icon: <PhotoLibraryRoundedIcon />, label: 'Làm mới hình ảnh' },
+        ]}
+        initialProduct={selectedProduct}
+        brands={brands}
+        categories={categories}
+        submitStatus={productUpdateStatus}
+        submitLabel="Lưu thay đổi"
+        pendingLabel="Đang cập nhật..."
+        onSubmit={handleProductUpdate}
+      />
+    </Box>
   )
 }

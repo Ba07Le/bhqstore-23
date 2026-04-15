@@ -344,10 +344,10 @@ export const ProductDetails = () => {
                   }}
                 >
                   {product.stockQuantity <= 0
-                    ? 'Het hang'
+                    ? 'Hết hàng'
                     : product.stockQuantity <= 10
-                      ? `Chi con ${product.stockQuantity} san pham`
-                      : 'San pham san sang giao'}
+                      ? `Chỉ còn ${product.stockQuantity} sản phẩm`
+                      : 'Sản phẩm sẵn sàng giao'}
                 </Typography>
               </Box>
 
@@ -386,7 +386,7 @@ export const ProductDetails = () => {
                       sx={{ bgcolor: 'black', '&:hover': { bgcolor: '#333' } }}
                       onClick={() => navigate('/cart')}
                     >
-                      Vao gio hang
+                      Vào giỏ hàng
                     </Button>
                   ) : (
                     <Button
@@ -398,7 +398,7 @@ export const ProductDetails = () => {
                       sx={{ bgcolor: 'black', '&:hover': { bgcolor: '#333' } }}
                       onClick={handleAddToCart}
                     >
-                      Them vao gio
+                      Thêm vào giỏ
                     </Button>
                   )}
 

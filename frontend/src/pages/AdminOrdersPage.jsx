@@ -10,8 +10,8 @@ import { AdminShell } from '../features/admin/components/AdminShell'
 export const AdminOrdersPage = () => {
   return (
     <AdminShell
-      title="Order Operations"
-      description="Quan ly don hang theo trang thai, xu ly nhanh cac don moi va theo doi tien do giao van nhu mot seller center thuc te."
+      title="Vận hành đơn hàng"
+      description="Quản lý đơn hàng theo trạng thái, xử lý nhanh các đơn mới và theo dõi tiến độ giao vận như một trung tâm người bán thực tế."
       actions={
         <Stack direction="row" gap={1} flexWrap="wrap">
           <Button
@@ -21,7 +21,7 @@ export const AdminOrdersPage = () => {
             color="inherit"
             startIcon={<DashboardRoundedIcon />}
           >
-            Ve tong quan
+            Về tổng quan
           </Button>
           <Button
             component={Link}
@@ -29,14 +29,14 @@ export const AdminOrdersPage = () => {
             variant="contained"
             startIcon={<AddBoxRoundedIcon />}
           >
-            Them san pham
+            Thêm sản phẩm
           </Button>
         </Stack>
       }
       stats={[
-        { label: 'Focus', value: 'Fulfillment' },
-        { label: 'Muc tieu', value: 'Xu ly nhanh' },
-        { label: 'Che do', value: 'Order desk' },
+        { label: 'Trọng tâm', value: 'Hoàn tất đơn' },
+        { label: 'Mục tiêu', value: 'Xử lý nhanh' },
+        { label: 'Chế độ', value: 'Bàn làm việc' },
       ]}
     >
       <AdminOrders />
