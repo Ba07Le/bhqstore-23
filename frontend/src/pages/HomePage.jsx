@@ -12,7 +12,7 @@ export const HomePage = () => {
   const dispatch = useDispatch()
   const addressStatus = useSelector(selectAddressStatus)
 
-  // 👇 tạo ref
+  //tạo ref
   const productRef = useRef(null)
   const featureRef = useRef(null)
 
@@ -22,12 +22,12 @@ export const HomePage = () => {
     }
   },[addressStatus])
 
-  // 👇 function scroll
+  //function scroll
   const scrollToProducts = () => {
     productRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-    // 👉 scroll tới features
+    //scroll tới features
   const scrollToFeatures = () => {
     featureRef.current?.scrollIntoView({ behavior: "smooth" })
   }

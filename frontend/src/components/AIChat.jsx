@@ -13,16 +13,12 @@ const AIChat = () => {
     const scrollRef = useRef(null);
     const dispatch = useDispatch();
 
-    // ✅ Logic di chuyển (Giữ nguyên vị trí các dòng cũ bên dưới)
     const [position, setPosition] = useState({ x: 25, y: 25 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [hasMoved, setHasMoved] = useState(false);
 
-    // ✅ Read user directly from Redux — no localStorage needed
     const loggedInUser = useSelector(selectLoggedInUser);
-
-    // Xử lý kéo thả
     useEffect(() => {
         const handleMouseMove = (e) => {
             if (!isDragging) return;

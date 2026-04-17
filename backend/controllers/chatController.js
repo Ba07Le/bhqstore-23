@@ -16,7 +16,7 @@ exports.handleChat = async (req, res) => {
             const newThread = await openai.beta.threads.create();
             threadId = newThread.id;
         }
-        console.log("✅ Using Thread ID:", threadId);
+        console.log("Using Thread ID:", threadId);
 
         // 2. Add User Message to Thread
         await openai.beta.threads.messages.create(threadId, {
@@ -29,7 +29,7 @@ exports.handleChat = async (req, res) => {
             assistant_id: assistantId
         });
         const runId = createdRun.id;
-        console.log("🚀 Run Started ID:", runId);
+        console.log("Run Started ID:", runId);
 
         // 4. Polling Loop with retry on rate limit
         let run = createdRun;
@@ -53,55 +53,81 @@ exports.handleChat = async (req, res) => {
                 const toolCalls = run.required_action.submit_tool_outputs.tool_calls;
                 const toolOutputs = await Promise.all(toolCalls.map(async (call) => {
                     if (call.function.name === "search_db") {
-                        // ✅ Debug logs to see exactly what AI is sending
-                        console.log("🔍 RAW function arguments:", call.function.arguments);
-                        console.log("🔍 typeof arguments:", typeof call.function.arguments);
+    let args;
+    try {
+        args = JSON.parse(call.function.arguments);
+    } catch (e) {
+        return { tool_call_id: call.id, output: JSON.stringify([]) };
+    }
 
-                        let args;
-                        try {
-                            args = JSON.parse(call.function.arguments);
-                        } catch (e) {
-                            console.error("❌ Failed to parse arguments:", e.message);
-                            return { tool_call_id: call.id, output: JSON.stringify([]) };
-                        }
+    const query = args.query || args.search_query || Object.values(args)[0];
+    // Lấy thêm các tham số về giá nếu AI trích xuất được (Ví dụ: {minPrice: 10, maxPrice: 50})
+    const minPrice = args.minPrice || 0;
+    const maxPrice = args.maxPrice || Number.MAX_SAFE_INTEGER;
 
-                        console.log("🔍 Parsed args:", args);
-                        console.log("🔍 Args keys:", Object.keys(args));
+    const emb = await openai.embeddings.create({
+        model: "text-embedding-3-small",
+        input: String(query).trim()
+    });
 
-                        // Handle any key name the AI might use
-                        const query = args.query || args.Query || args.search_query || args.keyword || Object.values(args)[0];
-                        console.log("🔍 Final query value:", query);
-                        console.log("🔍 Query type:", typeof query);
+    const results = await Product.aggregate([
+        {
+            "$vectorSearch": {
+                "index": "product", // Tên index của bạn trên Atlas
+                "path": "description_vector",
+                "queryVector": emb.data[0].embedding,
+                "numCandidates": 100,
+                "limit": 5 // Lấy 5 sp để có dữ liệu so sánh/đề xuất
+            }
+        },
+        {
+            // Lọc theo khoảng giá nếu có yêu cầu
+            "$match": {
+                "price": { "$gte": minPrice, "$lte": maxPrice },
+                "isDeleted": false
+            }
+        },
+        {
+            // Kết nối với collection reviews (tên collection thường là 'reviews')
+            "$lookup": {
+                "from": "reviews",
+                "localField": "_id",
+                "foreignField": "product",
+                "as": "customerReviews"
+            }
+        },
+        {
+            "$project": {
+                "title": 1,
+                "price": 1,
+                "description": 1,
+                "thumbnail": 1,
+                "stockQuantity": 1,
+                // Tính toán thông tin cho việc so sánh chất lượng
+                "averageRating": { "$avg": "$customerReviews.rating" },
+                "totalReviews": { "$size": "$customerReviews" },
+                "topComments": { "$slice": ["$customerReviews.comment", 2] } // Lấy 2 nhận xét tiêu biểu
+            }
+        }
+    ]);
 
-                        if (!query || String(query).trim() === "") {
-                            console.error("❌ Empty query — returning empty results");
-                            return { tool_call_id: call.id, output: JSON.stringify([]) };
-                        }
+    // Format lại output để AI dễ đọc và so sánh
+    const formattedResults = results.map(p => ({
+        id: p._id,
+        name: p.title,
+        price: `${p.price} USD`,
+        rating: p.averageRating ? `${p.averageRating.toFixed(1)}/5` : "Chưa có đánh giá",
+        review_count: p.totalReviews,
+        highlights: p.topComments.join(" | "),
+        quality_info: p.description, // AI sẽ tự đọc specs trong này để so sánh
+        availability: p.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"
+    }));
 
-                        const emb = await openai.embeddings.create({
-                            model: "text-embedding-3-small",
-                            input: String(query).trim()
-                        });
-
-                        const results = await Product.aggregate([
-                            {
-                                "$vectorSearch": {
-                                    "index": "product",
-                                    "path": "description_vector",
-                                    "queryVector": emb.data[0].embedding,
-                                    "numCandidates": 100,
-                                    "limit": 3
-                                }
-                            },
-                            { "$project": { "title": 1, "price": 1, "description": 1, "thumbnail": 1, "_id": 1 } }
-                        ]);
-
-                        console.log(`✨ Found ${results.length} products for: "${query}"`);
-                        return {
-                            tool_call_id: call.id,
-                            output: JSON.stringify(results)
-                        };
-                    }
+    return {
+        tool_call_id: call.id,
+        output: JSON.stringify(formattedResults)
+    };
+}
                 }));
 
                 await openai.beta.threads.runs.submitToolOutputs(threadId, currentRunId, {
