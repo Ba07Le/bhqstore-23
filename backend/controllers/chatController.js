@@ -16,7 +16,7 @@ exports.handleChat = async (req, res) => {
             const newThread = await openai.beta.threads.create();
             threadId = newThread.id;
         }
-        console.log("✅ Using Thread ID:", threadId);
+        console.log("Using Thread ID:", threadId);
 
         // 2. Add User Message to Thread
         await openai.beta.threads.messages.create(threadId, {
@@ -29,7 +29,7 @@ exports.handleChat = async (req, res) => {
             assistant_id: assistantId
         });
         const runId = createdRun.id;
-        console.log("🚀 Run Started ID:", runId);
+        console.log("Run Started ID:", runId);
 
         // 4. Polling Loop with retry on rate limit
         let run = createdRun;
