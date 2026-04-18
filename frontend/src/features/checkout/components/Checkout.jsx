@@ -10,6 +10,8 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Divider,
+  Box,
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -166,10 +168,6 @@ export const Checkout = () => {
         throw new Error('Khong tao duoc duong dan thanh toan')
       }
 
-      if (session?.isMock) {
-        toast.info(`Dang chuyen sang che do test ${selectedPaymentMethod} tren local`)
-      }
-
       window.location.assign(session.payUrl)
     } catch (error) {
       toast.error(error?.message || 'Khong the khoi tao cong thanh toan')
@@ -177,185 +175,166 @@ export const Checkout = () => {
   }
 
   return (
-    <Stack
-      flexDirection="row"
-      p={2}
-      rowGap={6}
-      justifyContent="center"
-      flexWrap="wrap"
-      mb="5rem"
-      mt={2}
-      columnGap={4}
-      alignItems="flex-start"
-    >
-      <Stack rowGap={4}>
-        <Stack flexDirection="row" columnGap={is480 ? 0.3 : 1} alignItems="center">
-          <motion.div whileHover={{ x: -5 }}>
-            <IconButton component={Link} to="/cart">
-              <ArrowBackIcon fontSize={is480 ? 'medium' : 'large'} />
-            </IconButton>
-          </motion.div>
-          <Typography variant="h4">Thông tin giao hàng</Typography>
-        </Stack>
+    <Box sx={{ p: 2, maxWidth: '1400px', mx: 'auto', mb: '5rem', mt: 2 }}>
+      {/* Header */}
+      <Stack flexDirection="row" columnGap={1} alignItems="center" mb={4}>
+        <motion.div whileHover={{ x: -5 }}>
+          <IconButton component={Link} to="/cart">
+            <ArrowBackIcon fontSize={is480 ? 'medium' : 'large'} />
+          </IconButton>
+        </motion.div>
+        <Typography variant="h4" fontWeight={800}>Thông tin thanh toán</Typography>
+      </Stack>
 
-        <Stack component="form" noValidate rowGap={2} onSubmit={handleSubmit(handleAddAddress)}>
-          <Stack>
-            <Typography gutterBottom>Người nhận / Nợi nhận</Typography>
-            <TextField
-              placeholder="Họ tên hoặc công ty..."
-              {...register('type', { required: true })}
-            />
-          </Stack>
-
-          <Stack>
-            <Typography gutterBottom>Đường</Typography>
-            <TextField {...register('street', { required: true })} />
-          </Stack>
-
-          <Stack>
-            <Typography gutterBottom>Quốc gia</Typography>
-            <TextField {...register('country', { required: true })} defaultValue="Viet Nam" />
-          </Stack>
-
-          <Stack>
-            <Typography gutterBottom>Số điện thoại</Typography>
-            <TextField type="number" {...register('phoneNumber', { required: true })} />
-          </Stack>
-
-          <Stack flexDirection="row">
-            <Stack width="100%">
-              <Typography gutterBottom>Thành phố</Typography>
-              <TextField {...register('city', { required: true })} />
-            </Stack>
-            <Stack width="100%">
-              <Typography gutterBottom>Mã bưu chính</Typography>
-              <TextField type="number" {...register('postalCode', { required: true })} />
-            </Stack>
-          </Stack>
-
-          <Stack flexDirection="row" alignSelf="flex-end" columnGap={1}>
-            <LoadingButton loading={addressStatus === 'pending'} type="submit" variant="contained">
-              {loggedInUser ? 'Thêm địa chỉ' : 'Xác nhận địa chỉ'}
-            </LoadingButton>
-            <Button color="error" variant="outlined" onClick={() => reset()}>
-              Reset
-            </Button>
-          </Stack>
-        </Stack>
-
-        {loggedInUser && savedAddresses.length > 0 && (
+      <Grid container spacing={4}>
+        {/* CỘT TRÁI: ĐỊA CHỈ */}
+        <Grid item xs={12} md={7}>
           <Stack rowGap={3}>
-            <Stack>
-              <Typography variant="h6">Địa chỉ đã lưu</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Chọn từ danh sách của bạn
-              </Typography>
+            <Typography variant="h6" fontWeight={700}>1. Địa chỉ nhận hàng</Typography>
+            <Stack component="form" noValidate rowGap={2} onSubmit={handleSubmit(handleAddAddress)}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Họ tên người nhận" {...register('type', { required: true })} />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Số điện thoại" type="number" {...register('phoneNumber', { required: true })} />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField fullWidth label="Địa chỉ (Số nhà, tên đường)" {...register('street', { required: true })} />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField fullWidth label="Thành phố" {...register('city', { required: true })} />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField fullWidth label="Mã bưu chính" type="number" {...register('postalCode', { required: true })} />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField fullWidth label="Quốc gia" defaultValue="Việt Nam" {...register('country', { required: true })} />
+                </Grid>
+              </Grid>
+
+              <Stack flexDirection="row" alignSelf="flex-end" columnGap={1}>
+                <Button color="inherit" onClick={() => reset()}>XÓA FORM</Button>
+                <LoadingButton loading={addressStatus === 'pending'} type="submit" variant="contained" sx={{ bgcolor: 'black' }}>
+                  {loggedInUser ? 'LƯU ĐỊA CHỈ MỚI' : 'XÁC NHẬN ĐỊA CHỈ'}
+                </LoadingButton>
+              </Stack>
             </Stack>
 
-            <Grid
-              container
-              gap={2}
-              width={is900 ? 'auto' : '50rem'}
-              justifyContent="flex-start"
-              alignContent="flex-start"
-            >
-              {savedAddresses.map((address, index) => (
-                <Stack
-                  key={address._id || index}
-                  p={2}
-                  width={is480 ? '100%' : '20rem'}
-                  height={is480 ? 'auto' : '15rem'}
-                  rowGap={2}
-                  component={Paper}
-                  elevation={1}
+            {loggedInUser && savedAddresses.length > 0 && (
+              <Box mt={2}>
+                <Typography variant="body2" color="text.secondary" mb={2}>Hoặc chọn từ địa chỉ đã lưu:</Typography>
+                <Grid container spacing={2}>
+                  {savedAddresses.map((address, index) => (
+                    <Grid item xs={12} sm={6} key={address._id || index}>
+                      <Paper
+                        elevation={0}
+                        onClick={() => setSelectedAddress(address)}
+                        sx={{
+                          p: 2,
+                          cursor: 'pointer',
+                          border: selectedAddress === address ? '2px solid black' : '1px solid #e0e0e0',
+                          borderRadius: 2
+                        }}
+                      >
+                        <Stack flexDirection="row" alignItems="center" justifyContent="space-between">
+                          <Typography fontWeight={700}>{address.type}</Typography>
+                          <Radio checked={selectedAddress === address} />
+                        </Stack>
+                        <Typography variant="body2">{address.street}</Typography>
+                        <Typography variant="body2">{address.city}, {address.country}</Typography>
+                        <Typography variant="body2" fontWeight={600}>{address.phoneNumber}</Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+          </Stack>
+        </Grid>
+
+        {/* CỘT PHẢI: PHƯƠNG THỨC THANH TOÁN */}
+        <Grid item xs={12} md={5}>
+          <Stack rowGap={3}>
+            <Typography variant="h6" fontWeight={700}>2. Phương thức thanh toán</Typography>
+            <Stack rowGap={2}>
+              {paymentOptions.map((option) => (
+                <Paper
+                  key={option.value}
+                  elevation={0}
+                  onClick={() => setSelectedPaymentMethod(option.value)}
                   sx={{
-                    border:
-                      selectedAddress === address
-                        ? '2px solid #1976d2'
-                        : '1px solid rgba(15,23,42,0.08)',
+                    p: 2,
+                    cursor: 'pointer',
+                    borderRadius: 3,
+                    border: selectedPaymentMethod === option.value ? '2px solid black' : '1px solid #e0e0e0',
                   }}
                 >
-                  <Stack flexDirection="row" alignItems="center">
-                    <Radio
-                      checked={selectedAddress === address}
-                      name="addressRadioGroup"
-                      onChange={() => setSelectedAddress(address)}
-                    />
-                    <Typography fontWeight={600}>{address.type}</Typography>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Typography fontWeight={700}>{option.label}</Typography>
+                      <Typography variant="caption" color="text.secondary">{option.helper}</Typography>
+                    </Box>
+                    <Radio checked={selectedPaymentMethod === option.value} />
                   </Stack>
-                  <Stack>
-                    <Typography>{address.street}</Typography>
-                    <Typography>
-                      {address.city}, {address.country}
-                    </Typography>
-                    <Typography>{address.phoneNumber}</Typography>
-                  </Stack>
-                </Stack>
+                </Paper>
               ))}
-            </Grid>
+            </Stack>
           </Stack>
-        )}
+        </Grid>
 
-        <Stack rowGap={3}>
-          <Stack>
-            <Typography variant="h6">Phương thức thanh toán</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Chọn cách thanh toán phù hợp cho đơn hàng này
-            </Typography>
-          </Stack>
+        {/* HÀNG DƯỚI: ĐƠN HÀNG (HIỂN THỊ HẾT CART) */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 4 }} />
+          <Typography variant="h5" fontWeight={800} mb={3}>3. Đơn hàng của bạn</Typography>
+          
+          <Paper elevation={0} sx={{ border: '1px solid #f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
+            {/* Component Cart hiển thị đầy đủ danh sách */}
+            <Cart checkout />
 
-          <Stack rowGap={2}>
-            {paymentOptions.map((option) => (
-              <Stack
-                key={option.value}
-                component={Paper}
-                elevation={0}
-                direction="row"
-                onClick={() => setSelectedPaymentMethod(option.value)}
-                justifyContent="space-between"
-                alignItems="center"
-                p={2}
-                sx={{
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  border:
-                    selectedPaymentMethod === option.value
-                      ? '2px solid #1976d2'
-                      : '1px solid rgba(15,23,42,0.08)',
-                }}
-              >
-                <Stack>
-                  <Typography fontWeight={700}>{option.label}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {option.helper}
+            {/* Khối tính tiền CĂN GIỮA */}
+            <Stack alignItems="center" p={4} bgcolor="#fafafa">
+              <Stack spacing={1.5} sx={{ width: { xs: '100%', md: '450px' } }}>
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography color="text.secondary">Tạm tính</Typography>
+                  <Typography fontWeight={700}>{subtotal.toLocaleString()}đ</Typography>
+                </Stack>
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography color="text.secondary">Phí vận chuyển</Typography>
+                  <Typography fontWeight={700}>{SHIPPING.toLocaleString()}đ</Typography>
+                </Stack>
+                <Divider />
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="h5" fontWeight={900}>Tổng thanh toán</Typography>
+                  <Typography variant="h5" fontWeight={900}>
+                    {orderTotal.toLocaleString()}đ
                   </Typography>
                 </Stack>
-                <Radio
-                  value={option.value}
-                  checked={selectedPaymentMethod === option.value}
-                  onChange={() => setSelectedPaymentMethod(option.value)}
-                />
-              </Stack>
-            ))}
-          </Stack>
-        </Stack>
-      </Stack>
 
-      <Stack width={is900 ? '100%' : 'auto'} alignItems={is900 ? 'flex-start' : ''}>
-        <Typography variant="h4">Đơn hàng</Typography>
-        <Cart checkout />
-        <LoadingButton
-          fullWidth
-          loading={isSubmittingPayment}
-          variant="contained"
-          onClick={handleCreateOrder}
-          size="large"
-        >
-          {selectedPaymentMethod === 'COD'
-            ? 'Đặt hàng'
-            : `Thanh toán qua ${selectedPaymentMethod}`}
-        </LoadingButton>
-      </Stack>
-    </Stack>
+                <LoadingButton
+                  fullWidth
+                  loading={isSubmittingPayment}
+                  variant="contained"
+                  onClick={handleCreateOrder}
+                  size="large"
+                  sx={{ 
+                    py: 2, 
+                    mt: 2, 
+                    borderRadius: 3, 
+                    fontWeight: 900, 
+                    bgcolor: 'black',
+                    '&:hover': { bgcolor: '#333' }
+                  }}
+                >
+                  {selectedPaymentMethod === 'COD'
+                    ? 'XÁC NHẬN ĐẶT HÀNG'
+                    : `THANH TOÁN QUA ${selectedPaymentMethod}`}
+                </LoadingButton>
+              </Stack>
+            </Stack>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   )
 }
