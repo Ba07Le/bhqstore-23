@@ -80,9 +80,6 @@ server.use("/reviews",reviewRoutes)
 server.use("/wishlist",wishlistRoutes)
 server.use("/api/chat",chatRoutes)
 
-
-
-
 server.get("/",(req,res)=>{
     res.status(200).json({message:'running'})
 })

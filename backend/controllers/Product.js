@@ -13,6 +13,13 @@ exports.create = async (req, res) => {
     data.stockQuantity = Number(data.stockQuantity);
     data.description = data.description || "";
 
+    // ✅ Parse tags if it's a string (from FormData)
+    if (data.tags && typeof data.tags === 'string') {
+      data.tags = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    } else if (!data.tags) {
+      data.tags = [];
+    }
+
     // --- LOGIC AI: TẠO VECTOR KHI THÊM MỚI ---
     try {
       const response = await openai.embeddings.create({
@@ -57,6 +64,13 @@ exports.updateById = async (req, res) => {
     const updateData = { ...req.body };
     updateData.price = Number(updateData.price);
     updateData.stockQuantity = Number(updateData.stockQuantity);
+
+    // ✅ Parse tags if it's a string (from FormData)
+    if (updateData.tags && typeof updateData.tags === 'string') {
+      updateData.tags = updateData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    } else if (!updateData.tags) {
+      updateData.tags = [];
+    }
 
     // --- LOGIC AI: CẬP NHẬT VECTOR NẾU THAY ĐỔI NỘI DUNG ---
     if (req.body.title || req.body.description) {
@@ -125,34 +139,49 @@ exports.getAll = async (req, res) => {
     }
 
     // --- FIX MULTIPLE BRAND ---
-if (req.query.brand) {
-  let brands = [];
+    if (req.query.brand) {
+      let brands = [];
 
-  if (Array.isArray(req.query.brand)) {
-    brands = req.query.brand;
-  } else if (typeof req.query.brand === "string") {
-    brands = req.query.brand.split(","); // 👈 FIX QUAN TRỌNG
-  }
+      if (Array.isArray(req.query.brand)) {
+        brands = req.query.brand;
+      } else if (typeof req.query.brand === "string") {
+        brands = req.query.brand.split(","); // 👈 FIX QUAN TRỌNG
+      }
 
-  filter.brand = {
-    $in: brands.map((id) => new mongoose.Types.ObjectId(id.trim())),
-  };
-}
+      filter.brand = {
+        $in: brands.map((id) => new mongoose.Types.ObjectId(id.trim())),
+      };
+    }
 
-// --- FIX MULTIPLE CATEGORY ---
-if (req.query.category) {
-  let categories = [];
+    // --- FIX MULTIPLE CATEGORY ---
+    if (req.query.category) {
+      let categories = [];
 
-  if (Array.isArray(req.query.category)) {
-    categories = req.query.category;
-  } else if (typeof req.query.category === "string") {
-    categories = req.query.category.split(","); // 👈 FIX QUAN TRỌNG
-  }
+      if (Array.isArray(req.query.category)) {
+        categories = req.query.category;
+      } else if (typeof req.query.category === "string") {
+        categories = req.query.category.split(","); // 👈 FIX QUAN TRỌNG
+      }
 
-  filter.category = {
-    $in: categories.map((id) => new mongoose.Types.ObjectId(id.trim())),
-  };
-}
+      filter.category = {
+        $in: categories.map((id) => new mongoose.Types.ObjectId(id.trim())),
+      };
+    }
+
+    // ✅ FILTER BY TAGS
+    if (req.query.tags) {
+      let tags = [];
+
+      if (Array.isArray(req.query.tags)) {
+        tags = req.query.tags;
+      } else if (typeof req.query.tags === "string") {
+        tags = req.query.tags.split(",").map(tag => tag.trim());
+      }
+
+      if (tags.length > 0) {
+        filter.tags = { $in: tags };
+      }
+    }
 
     if (req.query.user) filter.isDeleted = false;
     if (req.query.isDeleted === "true" || req.query.isDeleted === "false") {
@@ -186,7 +215,7 @@ if (req.query.category) {
       .skip(skip)
       .limit(limit)
       .exec();
-    
+
     res.set("X-Total-Count", totalDocs);
     res.status(200).json(results);
   } catch (error) {

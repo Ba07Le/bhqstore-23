@@ -84,7 +84,7 @@ const AIChat = () => {
                     quantity: 1
                 }));
 
-                console.log("🛒 Dispatch result:", result);
+                console.log("Dispatch result:", result);
 
                 if (result.meta.requestStatus === 'fulfilled') {
                     await dispatch(fetchCartByUserIdAsync(loggedInUser._id));
@@ -96,14 +96,13 @@ const AIChat = () => {
                     return false;
                 }
             } else {
-                // ✅ Guest — use Redux guest cart
                 console.log("👤 Guest — adding to guest cart");
                 dispatch(addToGuestCart({ _id: productId }));
-                if (!silent) alert("🛒 Đã thêm vào giỏ hàng!");
+                if (!silent) alert("Đã thêm vào giỏ hàng!");
                 return true;
             }
         } catch (error) {
-            console.error("❌ Cart Error:", error);
+            console.error("Cart Error:", error);
             return false;
         }
     };
@@ -133,17 +132,16 @@ const AIChat = () => {
             });
 
             const data = await response.json();
-            console.log("📨 Full response:", data);
+            console.log("Full response:", data);
 
             if (data.reply) {
-                // ✅ Use cartAction from backend
                 if (data.cartAction?.type === "ADD_TO_CART") {
                     const success = await handleAddToCart(data.cartAction.productId, true);
                     setMessages(prev => [...prev, {
                         role: 'assistant',
                         content: success
-                            ? '✅ Đã thêm sản phẩm vào giỏ hàng thành công!'
-                            : '❌ Không thể thêm vào giỏ hàng. Vui lòng thử lại.',
+                            ? 'Đã thêm sản phẩm vào giỏ hàng thành công!'
+                            : 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.',
                         isSystem: true
                     }]);
                 }
@@ -162,14 +160,14 @@ const AIChat = () => {
             } else if (data.error) {
                 setMessages(prev => [...prev, {
                     role: 'assistant',
-                    content: `❌ Lỗi: ${data.details || data.error}`
+                    content: `Lỗi: ${data.details || data.error}`
                 }]);
             }
         } catch (error) {
             console.error("Fetch error:", error);
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: '❌ Lỗi kết nối server! Vui lòng thử lại.'
+                content: 'Lỗi kết nối server! Vui lòng thử lại.'
             }]);
         } finally {
             setLoading(false);

@@ -2,12 +2,16 @@ import React, { useMemo } from 'react'
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   Grid,
   InputLabel,
   LinearProgress,
   MenuItem,
+  Paper,
   Select,
   Stack,
   TextField,
@@ -52,6 +56,7 @@ export const ProductEditorForm = ({
   initialProduct = null,
   brands = [],
   categories = [],
+  availableTags = [],
   submitStatus = 'idle',
   submitLabel,
   pendingLabel,
@@ -69,6 +74,7 @@ export const ProductEditorForm = ({
       stockQuantity: initialProduct?.stockQuantity ?? '',
       brand: initialProduct?.brand?._id || '',
       category: initialProduct?.category?._id || '',
+      tags: initialProduct?.tags || [],
     }),
     [initialProduct]
   )
@@ -77,6 +83,7 @@ export const ProductEditorForm = ({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({ defaultValues })
 
@@ -86,6 +93,7 @@ export const ProductEditorForm = ({
   const stockQuantity = watch('stockQuantity')
   const brand = watch('brand')
   const category = watch('category')
+  const tags = watch('tags')
   const thumbnailFile = watch('thumbnail')?.[0]
   const galleryFiles = productImageFieldNames.map((fieldName) => watch(fieldName)?.[0])
   const selectedGalleryFiles = galleryFiles.filter(Boolean)
@@ -136,8 +144,17 @@ export const ProductEditorForm = ({
   const noteTitle = mode === 'create' ? 'Gợi ý đăng bán' : 'Lưu ý tối ưu'
   const noteDescription =
     mode === 'create'
-      ? 'Đặt tên rõ ràng, mô tả đủ thông tin và dùng bộ ảnh đầy đủ sẽ giúp sản phẩm dễ được duyệt và hiển thị tốt hơn.'
-      : 'Mỗi lần cập nhật giá, tồn kho hoặc media nên đi kèm một lần kiểm tra lại độ sẵn sàng để sản phẩm không bị mất hiệu quả bán hàng.'
+      ? 'Đặt tên rõ ràng, mô tả đủ thông tin, chọn tags phù hợp và dùng bộ ảnh đầy đủ sẽ giúp sản phẩm dễ được duyệt và hiển thị tốt hơn.'
+      : 'Mỗi lần cập nhật giá, tồn kho, tags hoặc media nên đi kèm một lần kiểm tra lại độ sẵn sàng để sản phẩm không bị mất hiệu quả bán hàng.'
+
+  const handleTagChange = (tagValue, isChecked) => {
+    const currentTags = tags || []
+    if (isChecked) {
+      setValue('tags', [...currentTags, tagValue])
+    } else {
+      setValue('tags', currentTags.filter(t => t !== tagValue))
+    }
+  }
 
   return (
     <Stack rowGap={3}>
@@ -257,6 +274,53 @@ export const ProductEditorForm = ({
                 </Grid>
               </Grid>
             </AdminSurface>
+
+            {/* ✅ NEW: TAGS SECTION */}
+            {availableTags.length > 0 && (
+              <AdminSurface title="Tags (Nhãn sản phẩm)">
+                <Stack rowGap={2}>
+                  <Typography variant="body2" color="text.secondary">
+                    Chọn các nhãn phù hợp để giúp khách hàng dễ tìm thấy sản phẩm này
+                  </Typography>
+                  <FormGroup row>
+                    {availableTags.map((tag) => (
+                      <FormControlLabel
+                        key={tag.value}
+                        control={
+                          <Checkbox
+                            checked={tags?.includes(tag.value) || false}
+                            onChange={(e) => handleTagChange(tag.value, e.target.checked)}
+                          />
+                        }
+                        label={tag.label}
+                        sx={{ mb: 1, mr: 2 }}
+                      />
+                    ))}
+                  </FormGroup>
+                  
+                  {/* Display selected tags */}
+                  {tags && tags.length > 0 && (
+                    <Stack direction="row" gap={1} flexWrap="wrap" mt={2}>
+                      <Typography variant="subtitle2" sx={{ width: '100%' }}>
+                        Tags được chọn:
+                      </Typography>
+                      {tags.map((selectedTag) => {
+                        const tagLabel = availableTags.find(t => t.value === selectedTag)?.label
+                        return (
+                          <Chip
+                            key={selectedTag}
+                            label={tagLabel || selectedTag}
+                            color="primary"
+                            variant="outlined"
+                            onDelete={() => handleTagChange(selectedTag, false)}
+                          />
+                        )
+                      })}
+                    </Stack>
+                  )}
+                </Stack>
+              </AdminSurface>
+            )}
 
             <AdminSurface title={mode === 'create' ? 'Media sản phẩm' : 'Cập nhật media'}>
               <Stack rowGap={3}>

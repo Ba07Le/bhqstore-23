@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { Box, Backdrop, Stack, Typography, Zoom } from '@mui/material'
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded' // Thêm icon thành công
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
 import ImageRoundedIcon from '@mui/icons-material/ImageRounded'
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded'
 import SellRoundedIcon from '@mui/icons-material/SellRounded'
@@ -19,6 +19,22 @@ import { selectCategories } from '../../categories/CategoriesSlice'
 import { productImageFieldNames } from '../adminConfig'
 import { ProductEditorForm } from './ProductEditorForm'
 import { loadingAnimation } from '../../../assets'
+
+// ✅ Available tags for products
+const AVAILABLE_TAGS = [
+  { value: 'gaming', label: 'Gaming' },
+  { value: 'office', label: 'Office' },
+  { value: 'professional', label: 'Professional' },
+  { value: 'budget', label: 'Budget' },
+  { value: 'premium', label: 'Premium' },
+  { value: 'wireless', label: 'Wireless' },
+  { value: 'wired', label: 'Wired' },
+  { value: 'rgb', label: 'RGB' },
+  { value: 'mechanical', label: '⌨Mechanical' },
+  { value: 'noise-cancelling', label: 'Noise-Cancelling' },
+  { value: 'portable', label: 'Portable' },
+  { value: 'studio', label: 'Studio' },
+]
 
 export const AddProduct = () => {
   const dispatch = useDispatch()
@@ -57,6 +73,14 @@ export const AddProduct = () => {
     formData.append('stockQuantity', data.stockQuantity)
     formData.append('brand', data.brand)
     formData.append('category', data.category)
+    
+    // ✅ Append tags as comma-separated string
+    if (data.tags && data.tags.length > 0) {
+      formData.append('tags', data.tags.join(','))
+    } else {
+      formData.append('tags', '')
+    }
+    
     formData.append('thumbnail', data.thumbnail[0])
 
     productImageFieldNames.forEach((fieldName) => {
@@ -118,7 +142,7 @@ export const AddProduct = () => {
       <ProductEditorForm
         mode="create"
         introTitle="Tạo sản phẩm mới"
-        introDescription="Điền đầy đủ nội dung, giá, tồn kho và hình ảnh để sản phẩm sẵn sàng đăng bán."
+        introDescription="Điền đầy đủ nội dung, giá, tồn kho, tags và hình ảnh để sản phẩm sẵn sàng đăng bán."
         chips={[
           { icon: <SellRoundedIcon />, label: 'Trung tâm danh mục' },
           { icon: <ImageRoundedIcon />, label: 'Yêu cầu hình ảnh' },
@@ -126,6 +150,7 @@ export const AddProduct = () => {
         ]}
         brands={brands}
         categories={categories}
+        availableTags={AVAILABLE_TAGS}
         submitStatus={productAddStatus}
         submitLabel="Lưu và đăng sản phẩm"
         pendingLabel="Đang lưu..."

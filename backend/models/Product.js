@@ -10,10 +10,29 @@ const productSchema = new Schema({
     stockQuantity: { type: Number, required: true },
     thumbnail: { type: String, required: true },
     images: { type: [String], required: true },
+    tags:{
+        type:[String],
+        enum:[
+            'gaming',           // For gamers
+            'office',           // For office/work
+            'professional',     // For professionals (streamers, designers)
+            'budget',           // Budget-friendly
+            'premium',          // High-end/luxury
+            'wireless',         // Wireless products
+            'wired',            // Wired products
+            'rgb',              // RGB lighting
+            'mechanical',       // Mechanical (keyboards)
+            'noise-cancelling', // Noise cancelling (headphones)
+            'portable',         // Portable (headphones)
+            'studio'            // Studio/Professional audio
+        ],
+        default:[]
+    },
     isDeleted: { type: Boolean, default: false },
     // Trường vector để AI tìm kiếm (Vector Search)
     description_vector: { type: [Number], default: [] }
-}, { 
+}, 
+{ 
     timestamps: true, 
     versionKey: false,
     toJSON: { virtuals: true }, // Cho phép hiển thị virtuals khi chuyển sang JSON

@@ -127,7 +127,7 @@ export const Reviews = ({productId,averageRating}) => {
                         </Stack>
 
                     ):(
-                        <Typography variant='h6' color={'text.secondary'} fontWeight={400}>{loggedInUser?.isAdmin?"Chưa có đánh gióa nào cả":"Chưa có đánh giá. Bạn có muốn là người đầu tiên khom?"}</Typography>
+                        <Typography variant='h6' color={'text.secondary'} fontWeight={400}>{loggedInUser?.isAdmin?"Chưa có đánh giá nào cả":"Chưa có đánh giá. Bạn có muốn là người đầu tiên khom?"}</Typography>
                     )
 
                 }
