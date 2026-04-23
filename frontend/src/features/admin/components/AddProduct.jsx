@@ -30,7 +30,7 @@ const AVAILABLE_TAGS = [
   { value: 'wireless', label: 'Wireless' },
   { value: 'wired', label: 'Wired' },
   { value: 'rgb', label: 'RGB' },
-  { value: 'mechanical', label: '⌨Mechanical' },
+  { value: 'mechanical', label: 'Mechanical' },
   { value: 'noise-cancelling', label: 'Noise-Cancelling' },
   { value: 'portable', label: 'Portable' },
   { value: 'studio', label: 'Studio' },

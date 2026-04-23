@@ -320,11 +320,9 @@ export const ProductList = () => {
                                 renderItem={(item) => {
                                     if (totalPages <= 3) return <PaginationItem {...item} />;
 
-                                    // Nếu đang ở trang 4 trở lên, trượt danh sách số
                                     let startPage = page >= 4 ? page - 2 : 1;
                                     let endPage = startPage + 2;
 
-                                    // Đảm bảo không vượt quá trang cuối
                                     if (endPage >= totalPages) {
                                         endPage = totalPages - 1;
                                         startPage = Math.max(1, endPage - 2);
@@ -334,10 +332,9 @@ export const ProductList = () => {
                                     for (let i = startPage; i <= endPage; i++) {
                                         allowedPages.push(i);
                                     }
-                                    allowedPages.push(totalPages); // Luôn hiện trang cuối
+                                    allowedPages.push(totalPages);
 
                                     if (item.type === 'page' && !allowedPages.includes(item.page)) {
-                                        // Hiện dấu ... thay cho trang nằm ngay sau dãy số trượt
                                         if (item.page === endPage + 1 && endPage + 1 < totalPages) {
                                             return <PaginationItem {...item} page="..." disabled />;
                                         }

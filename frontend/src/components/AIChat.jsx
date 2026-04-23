@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react'; 
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCartByUserIdAsync, addToCartAsync, addToGuestCart } from '../features/cart/CartSlice';
 import { selectLoggedInUser } from '../features/auth/AuthSlice';
 
-const AIChat = () => {
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+const AIChat = ({ onProductsFound }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([
@@ -12,48 +15,8 @@ const AIChat = () => {
     const [loading, setLoading] = useState(false);
     const scrollRef = useRef(null);
     const dispatch = useDispatch();
-
-    const [position, setPosition] = useState({ x: 25, y: 25 });
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    const [hasMoved, setHasMoved] = useState(false);
-
     const loggedInUser = useSelector(selectLoggedInUser);
-    useEffect(() => {
-        const handleMouseMove = (e) => {
-            if (!isDragging) return;
-            setHasMoved(true);
-            const newRight = window.innerWidth - e.clientX - dragStart.x;
-            const newBottom = window.innerHeight - e.clientY - dragStart.y;
-            setPosition({
-                x: Math.max(0, newRight),
-                y: Math.max(0, newBottom)
-            });
-        };
-        const handleMouseUp = () => {
-            setIsDragging(false);
-        };
-        if (isDragging) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDragging, dragStart]);
 
-    const handleMouseDown = (e) => {
-        if (e.target.tagName === 'BUTTON' && isOpen) return;
-        setIsDragging(true);
-        setHasMoved(false);
-        setDragStart({
-            x: (window.innerWidth - e.clientX) - position.x,
-            y: (window.innerHeight - e.clientY) - position.y
-        });
-    };
-
-    // Load chat history on mount
     useEffect(() => {
         const savedChat = localStorage.getItem('chat_history');
         if (savedChat) {
@@ -61,7 +24,6 @@ const AIChat = () => {
         }
     }, []);
 
-    // Auto-scroll + save history
     useEffect(() => {
         if (messages.length > 1) {
             localStorage.setItem('chat_history', JSON.stringify(messages));
@@ -71,34 +33,36 @@ const AIChat = () => {
         }
     }, [messages]);
 
+    const getUser = () => {
+        try {
+            const stored = localStorage.getItem('loggedInUser');
+            return stored ? JSON.parse(stored) : null;
+        } catch { return null; }
+    };
+
     const handleAddToCart = async (productId, silent = false) => {
         try {
             console.log("Adding to cart:", productId);
+            const user = getUser();
 
-            if (loggedInUser && loggedInUser._id) {
-                // Logged in — use Redux addToCartAsync
-                console.log("Logged in:", loggedInUser._id);
+            if (user && user._id) {
                 const result = await dispatch(addToCartAsync({
-                    user: loggedInUser._id,
+                    user: user._id,
                     product: productId,
                     quantity: 1
                 }));
 
-                console.log("Dispatch result:", result);
-
                 if (result.meta.requestStatus === 'fulfilled') {
-                    await dispatch(fetchCartByUserIdAsync(loggedInUser._id));
-                    if (!silent) alert(" Đã thêm vào giỏ hàng thành công!");
+                    await dispatch(fetchCartByUserIdAsync(user._id));
+                    if (!silent) alert("Added to cart successfully!");
                     return true;
                 } else {
-                    console.error("addToCartAsync failed:", result.error);
-                    if (!silent) alert("Không thể thêm vào giỏ hàng!");
+                    if (!silent) alert("Cannot add to cart!");
                     return false;
                 }
             } else {
-                console.log("👤 Guest — adding to guest cart");
                 dispatch(addToGuestCart({ _id: productId }));
-                if (!silent) alert("Đã thêm vào giỏ hàng!");
+                if (!silent) alert("Added to cart!");
                 return true;
             }
         } catch (error) {
@@ -117,12 +81,7 @@ const AIChat = () => {
 
         try {
             const threadId = localStorage.getItem('chat_thread_id');
-
-            if (threadId === "undefined" || threadId === "null") {
-            threadId = null;
-        }
-
-            const response = await fetch('http://localhost:8000/api/chat', {
+            const response = await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -132,16 +91,23 @@ const AIChat = () => {
             });
 
             const data = await response.json();
-            console.log("Full response:", data);
+            console.log("data.products:", data.products);          // ← is it array of 10?
+            console.log("onProductsFound type:", typeof onProductsFound); // ← is it 'function'?
 
-            if (data.reply) {
+           if (data.reply) {
+    const products = data.products || [];
+    console.log("products length:", products.length); 
+    if (products.length > 0 && onProductsFound) {
+        onProductsFound(products);
+    }
+
                 if (data.cartAction?.type === "ADD_TO_CART") {
                     const success = await handleAddToCart(data.cartAction.productId, true);
                     setMessages(prev => [...prev, {
                         role: 'assistant',
                         content: success
-                            ? 'Đã thêm sản phẩm vào giỏ hàng thành công!'
-                            : 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.',
+                            ? 'Added to cart successfully!'
+                            : 'Cannot add to cart. Please try again.',
                         isSystem: true
                     }]);
                 }
@@ -160,14 +126,14 @@ const AIChat = () => {
             } else if (data.error) {
                 setMessages(prev => [...prev, {
                     role: 'assistant',
-                    content: `Lỗi: ${data.details || data.error}`
+                    content: `Error: ${data.details || data.error}`
                 }]);
             }
         } catch (error) {
             console.error("Fetch error:", error);
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: 'Lỗi kết nối server! Vui lòng thử lại.'
+                content: 'Connection error. Please try again!'
             }]);
         } finally {
             setLoading(false);
@@ -184,86 +150,100 @@ const AIChat = () => {
     };
 
     const renderMessageContent = (text) => {
-        const parts = text.split(/(!\[.*?\]\(.*?\))|(\[ID:\s*.*?\])/g).filter(Boolean);
-        return parts.map((part, index) => {
-            const imageMatch = part.match(/!\[.*?\]\((.*?)\)/);
+        const lines = text.split('\n');
+
+        return lines.map((line, lineIdx) => {
+            const imageMatch = line.match(/!\[.*?\]\((.*?)\)/);
             if (imageMatch) {
                 const imgPath = imageMatch[1];
-                const fullUrl = imgPath.startsWith('http') ? imgPath : `http://localhost:8000${imgPath}`;
+                const fullUrl = imgPath.startsWith('http') ? imgPath : `${API_URL}${imgPath}`;
                 return (
-                    <img key={index} src={fullUrl} alt="Product"
-                        style={{ width: '100%', borderRadius: '12px', marginTop: '8px', display: 'block', border: '1px solid #eee' }}
+                    <img key={lineIdx} src={fullUrl} alt="Product"
+                        style={{
+                            width: '100%', borderRadius: '12px', marginTop: '8px',
+                            display: 'block', border: '1px solid #eee',
+                            maxHeight: '200px', objectFit: 'cover'
+                        }}
                         onError={(e) => { e.target.style.display = 'none'; }}
                     />
                 );
             }
 
-            const idMatch = part.match(/\[ID:\s*(.*?)\]/);
+            const idMatch = line.match(/\[ID:\s*(.*?)\]/);
             if (idMatch) {
                 const pId = idMatch[1].trim();
                 return (
-                    <button key={index} onClick={() => handleAddToCart(pId)}
+                    <button key={lineIdx} onClick={() => handleAddToCart(pId)}
                         style={{
-                            marginTop: '10px', width: '100%', padding: '10px',
-                            backgroundColor: '#151716', color: 'white', border: 'none',
+                            marginTop: '8px', width: '100%', padding: '10px',
+                            backgroundColor: '#10b981', color: 'white', border: 'none',
                             borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px'
                         }}
                     >
-                        
-                        Thêm vào giỏ hàng
+                        Add to cart
                     </button>
                 );
             }
 
-            return <span key={index} style={{ whiteSpace: 'pre-wrap' }}>{part}</span>;
+            if (line.trim() === '---') {
+                return <hr key={lineIdx} style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '8px 0' }} />;
+            }
+
+            if (line.includes('**')) {
+                const parts = line.split(/\*\*(.*?)\*\*/g);
+                return (
+                    <div key={lineIdx} style={{ marginBottom: '2px' }}>
+                        {parts.map((part, i) =>
+                            i % 2 === 1
+                                ? <strong key={i}>{part}</strong>
+                                : <span key={i}>{part}</span>
+                        )}
+                    </div>
+                );
+            }
+
+            return line ? (
+                <div key={lineIdx} style={{ marginBottom: '2px' }}>{line}</div>
+            ) : (
+                <div key={lineIdx} style={{ height: '6px' }} />
+            );
         });
     };
 
     return (
-        <div style={{ position: 'fixed', bottom: `${position.y}px`, right: `${position.x}px`, zIndex: 10000 }}>
+        <div style={{ position: 'fixed', bottom: '25px', right: '25px', zIndex: 10000 }}>
 
-            {/* Toggle Button */}
             {!isOpen && (
-                <button 
-                    onMouseDown={handleMouseDown}
-                    onClick={() => { if (!hasMoved) setIsOpen(true); }}
+                <button onClick={() => setIsOpen(true)}
                     style={{
-                        backgroundColor: '#111214', color: 'white', borderRadius: '50%',
-                        width: '65px', height: '65px', border: 'none', cursor: isDragging ? 'grabbing' : 'pointer',
-                        fontSize: '28px', boxShadow: '0 4px 15px rgba(37,99,235,0.4)',
-                        userSelect: 'none'
+                        backgroundColor: '#2563eb', color: 'white', borderRadius: '50%',
+                        width: '65px', height: '65px', border: 'none', cursor: 'pointer',
+                        fontSize: '28px', boxShadow: '0 4px 15px rgba(37,99,235,0.4)'
                     }}
                 >
                     💬
                 </button>
             )}
 
-            {/* Chat Window */}
             {isOpen && (
                 <div style={{
-                    width: '380px', height: '600px', backgroundColor: 'white',
+                    width: '400px', height: '620px', backgroundColor: 'white',
                     borderRadius: '24px', display: 'flex', flexDirection: 'column',
                     border: '1px solid #e2e8f0', overflow: 'hidden',
                     boxShadow: '0 20px 50px rgba(0,0,0,0.2)'
                 }}>
-                    {/* Header */}
-                    <div 
-                        onMouseDown={handleMouseDown}
-                        style={{
-                            background: '#000', padding: '16px 20px', color: 'white',
-                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            cursor: isDragging ? 'grabbing' : 'grab', userSelect: 'none'
-                        }}
-                    >
+                    <div style={{
+                        background: '#000', padding: '16px 20px', color: 'white',
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                    }}>
                         <div>
-                            <div style={{ fontWeight: 'bold', fontSize: '15px' }}>🤖 BHQ Store AI</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '15px' }}>BHQ Store AI</div>
                             <div style={{ fontSize: '11px', opacity: 0.7 }}>
-                                {loggedInUser ? ` ${loggedInUser.name || loggedInUser.email}` : '👤 Khách'}
+                                {loggedInUser ? `${loggedInUser.name || loggedInUser.email}` : 'Guest'}
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <button onClick={handleClearChat}
-                                title="Xoá lịch sử"
                                 style={{
                                     color: 'white', background: 'none',
                                     border: '1px solid rgba(255,255,255,0.3)',
@@ -271,7 +251,7 @@ const AIChat = () => {
                                     fontSize: '11px', padding: '4px 8px'
                                 }}
                             >
-                                Xoá
+                                Clear
                             </button>
                             <button onClick={() => setIsOpen(false)}
                                 style={{ color: 'white', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}
@@ -281,7 +261,6 @@ const AIChat = () => {
                         </div>
                     </div>
 
-                    {/* Messages */}
                     <div ref={scrollRef} style={{
                         flex: 1, overflowY: 'auto', padding: '15px',
                         backgroundColor: '#f8fafc', display: 'flex',
@@ -295,7 +274,7 @@ const AIChat = () => {
                                 <div style={{
                                     padding: '10px 14px', borderRadius: '18px',
                                     fontSize: '14px', lineHeight: '1.5',
-                                    backgroundColor: msg.role === 'user' ? '#0a0b0d' : msg.isSystem ? '#ecfdf5' : 'white',
+                                    backgroundColor: msg.role === 'user' ? '#2563eb' : msg.isSystem ? '#ecfdf5' : 'white',
                                     color: msg.role === 'user' ? 'white' : '#1e293b',
                                     border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0'
                                 }}>
@@ -309,12 +288,11 @@ const AIChat = () => {
                                 backgroundColor: 'white', borderRadius: '18px',
                                 border: '1px solid #e2e8f0', fontSize: '13px', color: '#64748b'
                             }}>
-                                🤖 Đang tìm kiếm...
+                                Searching...
                             </div>
                         )}
                     </div>
 
-                    {/* Input */}
                     <div style={{
                         padding: '12px 15px', borderTop: '1px solid #e2e8f0',
                         display: 'flex', gap: '8px', backgroundColor: 'white'
@@ -327,7 +305,7 @@ const AIChat = () => {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="Hỏi linh kiện..."
+                            placeholder="Ask for products..."
                             disabled={loading}
                         />
                         <button onClick={handleSend} disabled={loading}
@@ -338,7 +316,7 @@ const AIChat = () => {
                                 fontWeight: 'bold'
                             }}
                         >
-                            Gửi
+                            Send
                         </button>
                     </div>
                 </div>

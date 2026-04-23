@@ -50,6 +50,7 @@ function extractTags(query) {
 }
 
 exports.handleChat = async (req, res) => {
+    let foundProducts = [];
     let { message, threadId } = req.body;
     const assistantId = process.env.OPENAI_ASSISTANT_ID;
 
@@ -104,7 +105,9 @@ exports.handleChat = async (req, res) => {
                             args = JSON.parse(call.function.arguments);
                         } catch (e) {
                             console.error("❌ JSON parse failed:", e.message);
-                            return { tool_call_id: call.id, output: JSON.stringify([]) };
+                            foundProducts = formattedResults;
+                            return { tool_call_id: call.id, 
+                            output: JSON.stringify(formattedResults) };
                         }
 
                         const query = args.query || args.search_query || args.keyword || Object.values(args)[0];
@@ -122,9 +125,10 @@ exports.handleChat = async (req, res) => {
                         const queryLower = String(query).trim().toLowerCase();
                         
                         const isAllowedProduct = allowedKeywords.some(keyword => queryLower.includes(keyword));
-
+                        
                         if (!isAllowedProduct) {
                             console.log("⚠️ Category not allowed:", query);
+                            
                             return { 
                                 tool_call_id: call.id, 
                                 output: JSON.stringify([{ 
@@ -228,9 +232,10 @@ exports.handleChat = async (req, res) => {
                                 availability: p.stockQuantity > 0 ? "Còn hàng ✅" : "Hết hàng ❌"
                             };
                         });
-
+                        foundProducts = formattedResults; // ← make sure this line exists
+                        
                         console.log(`✨ Found ${formattedResults.length} products for: "${query}" with tags: ${extractedTags.join(', ')}`);
-
+                        console.log("✅ foundProducts set:", foundProducts.length);
                         return {
                             tool_call_id: call.id,
                             output: JSON.stringify(formattedResults)
@@ -301,11 +306,12 @@ exports.handleChat = async (req, res) => {
                 console.log("⚠️ AI returned ADD_TO_CART tag but user didn't explicitly request it - ignoring");
             }
         }
-
+        console.log("✅ Sending products count:", foundProducts.length); 
         res.status(200).json({
             reply: lastMessage,
             threadId: threadId,
-            cartAction
+            cartAction,
+            products: foundProducts 
         });
 
     } catch (error) {

@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom';
-import AIChat from '../components/AIChat'; 
 
 export const RootLayout = () => {
   return (
@@ -7,7 +6,6 @@ export const RootLayout = () => {
       <main className="flex-grow">
         <Outlet /> 
       </main>
-      <AIChat /> 
     </div>
   );
 };
