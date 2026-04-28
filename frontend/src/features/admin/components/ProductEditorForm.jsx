@@ -8,6 +8,7 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
+  IconButton,
   InputLabel,
   LinearProgress,
   MenuItem,
@@ -20,6 +21,8 @@ import {
   useTheme,
 } from '@mui/material'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
@@ -30,7 +33,6 @@ import { AdminSurface } from './AdminSurface'
 
 const renderPreviewImage = (src, alt) => {
   if (!src) return null
-
   return (
     <Box
       component="img"
@@ -87,15 +89,16 @@ export const ProductEditorForm = ({
     formState: { errors },
   } = useForm({ defaultValues })
 
+  // ✅ Specs state — immutable updates only
   const [specs, setSpecs] = useState(() => {
-  if (initialProduct?.specifications) {
-    return initialProduct.specifications.map(item => ({
-      key: item.key || '',
-      value: item.value || ''
-    }))
-  }
-  return [{ key: '', value: '' }]
-})
+    if (initialProduct?.specifications?.length > 0) {
+      return initialProduct.specifications.map(item => ({
+        key: item.key || '',
+        value: item.value || '',
+      }))
+    }
+    return [{ key: '', value: '' }]
+  })
 
   const title = watch('title')
   const description = watch('description')
@@ -107,7 +110,6 @@ export const ProductEditorForm = ({
   const thumbnailFile = watch('thumbnail')?.[0]
   const galleryFiles = productImageFieldNames.map((fieldName) => watch(fieldName)?.[0])
   const selectedGalleryFiles = galleryFiles.filter(Boolean)
-
 
   const checklist = useMemo(
     () =>
@@ -122,23 +124,18 @@ export const ProductEditorForm = ({
             ? stockQuantity
             : initialProduct?.stockQuantity,
         hasThumbnail: Boolean(thumbnailFile || initialProduct?.thumbnail),
-        imageCount: mode === 'create'
-          ? selectedGalleryFiles.length
-          : selectedGalleryFiles.length || initialProduct?.images?.filter(Boolean)?.length || 0,
+        imageCount:
+          mode === 'create'
+            ? selectedGalleryFiles.length
+            : selectedGalleryFiles.length ||
+              initialProduct?.images?.filter(Boolean)?.length ||
+              0,
         requireFullGallery: mode === 'create',
         targetImageCount: productImageFieldNames.length,
       }),
     [
-      title,
-      brand,
-      category,
-      description,
-      price,
-      stockQuantity,
-      thumbnailFile,
-      initialProduct,
-      mode,
-      selectedGalleryFiles.length,
+      title, brand, category, description, price, stockQuantity,
+      thumbnailFile, initialProduct, mode, selectedGalleryFiles.length,
     ]
   )
 
@@ -158,13 +155,35 @@ export const ProductEditorForm = ({
       ? 'Đặt tên rõ ràng, mô tả đủ thông tin, chọn tags phù hợp và dùng bộ ảnh đầy đủ sẽ giúp sản phẩm dễ được duyệt và hiển thị tốt hơn.'
       : 'Mỗi lần cập nhật giá, tồn kho, tags hoặc media nên đi kèm một lần kiểm tra lại độ sẵn sàng để sản phẩm không bị mất hiệu quả bán hàng.'
 
+  // ✅ Tags handler
   const handleTagChange = (tagValue, isChecked) => {
     const currentTags = tags || []
     if (isChecked) {
       setValue('tags', [...currentTags, tagValue])
     } else {
-      setValue('tags', currentTags.filter(t => t !== tagValue))
+      setValue('tags', currentTags.filter((t) => t !== tagValue))
     }
+  }
+
+  // ✅ Specs handlers — immutable
+  const handleSpecChange = (index, field, value) => {
+    setSpecs(prev =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    )
+  }
+
+  const handleAddSpec = () => {
+    setSpecs(prev => [...prev, { key: '', value: '' }])
+  }
+
+  const handleRemoveSpec = (index) => {
+    setSpecs(prev => prev.filter((_, i) => i !== index))
+  }
+
+  // ✅ Submit — filter out empty specs
+  const handleFormSubmit = (data) => {
+    const cleanSpecs = specs.filter(s => s.key.trim() && s.value.trim())
+    onSubmit({ ...data, specifications: cleanSpecs })
   }
 
   return (
@@ -181,14 +200,16 @@ export const ProductEditorForm = ({
         }
       />
 
-      <Stack component="form" rowGap={3} noValidate onSubmit={handleSubmit((data) => {
-  onSubmit({
-    ...data,
-    specifications: specs
-  })
-})}>
+      <Stack
+        component="form"
+        rowGap={3}
+        noValidate
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
         <Stack direction={is1100 ? 'column' : 'row'} gap={3} alignItems="flex-start">
           <Stack flex={1} rowGap={3} width="100%">
+
+            {/* ── THÔNG TIN CƠ BẢN ── */}
             <AdminSurface title="Thông tin cơ bản">
               <Stack rowGap={3}>
                 <TextField
@@ -259,6 +280,7 @@ export const ProductEditorForm = ({
               </Stack>
             </AdminSurface>
 
+            {/* ── GIÁ BÁN VÀ TỒN KHO ── */}
             <AdminSurface title="Giá bán và tồn kho">
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
@@ -274,7 +296,6 @@ export const ProductEditorForm = ({
                     helperText={errors.price?.message}
                   />
                 </Grid>
-
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
@@ -291,7 +312,7 @@ export const ProductEditorForm = ({
               </Grid>
             </AdminSurface>
 
-            {/* ✅ NEW: TAGS SECTION */}
+            {/* ── TAGS ── */}
             {availableTags.length > 0 && (
               <AdminSurface title="Tags (Nhãn sản phẩm)">
                 <Stack rowGap={2}>
@@ -313,15 +334,14 @@ export const ProductEditorForm = ({
                       />
                     ))}
                   </FormGroup>
-                  
-                  {/* Display selected tags */}
+
                   {tags && tags.length > 0 && (
-                    <Stack direction="row" gap={1} flexWrap="wrap" mt={2}>
+                    <Stack direction="row" gap={1} flexWrap="wrap" mt={1}>
                       <Typography variant="subtitle2" sx={{ width: '100%' }}>
                         Tags được chọn:
                       </Typography>
                       {tags.map((selectedTag) => {
-                        const tagLabel = availableTags.find(t => t.value === selectedTag)?.label
+                        const tagLabel = availableTags.find((t) => t.value === selectedTag)?.label
                         return (
                           <Chip
                             key={selectedTag}
@@ -338,7 +358,83 @@ export const ProductEditorForm = ({
               </AdminSurface>
             )}
 
+            {/* ── THÔNG SỐ KỸ THUẬT ── */}
+            <AdminSurface title="Thông số kỹ thuật">
+              <Stack rowGap={2}>
+                <Typography variant="body2" color="text.secondary">
+                  Thêm các thông số để AI có thể tư vấn chính xác hơn cho khách hàng (VD: DPI, Kết nối, Trọng lượng...)
+                </Typography>
 
+                {specs.map((spec, index) => (
+                  <Grid container spacing={2} key={index} alignItems="center">
+                    <Grid item xs={5}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Tên thông số"
+                        placeholder="VD: DPI, Kết nối, Trọng lượng"
+                        value={spec.key}
+                        onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={5}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Giá trị"
+                        placeholder="VD: 100-30000, Không dây, 64g"
+                        value={spec.value}
+                        onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={2} display="flex" justifyContent="center">
+                      <IconButton
+                        color="error"
+                        size="small"
+                        onClick={() => handleRemoveSpec(index)}
+                        disabled={specs.length === 1}
+                      >
+                        <DeleteOutlineRoundedIcon />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                ))}
+
+                {/* Preview */}
+                {specs.filter(s => s.key.trim() && s.value.trim()).length > 0 && (
+                  <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 2 }}>
+                    <Typography variant="caption" fontWeight={700} color="text.secondary" display="block" mb={1}>
+                      XEM TRƯỚC
+                    </Typography>
+                    <Stack rowGap={0.5}>
+                      {specs
+                        .filter(s => s.key.trim() && s.value.trim())
+                        .map((s, i) => (
+                          <Stack key={i} direction="row" spacing={1}>
+                            <Typography variant="body2" fontWeight={600} minWidth={140}>
+                              {s.key}:
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {s.value}
+                            </Typography>
+                          </Stack>
+                        ))}
+                    </Stack>
+                  </Paper>
+                )}
+
+                <Button
+                  variant="outlined"
+                  startIcon={<AddRoundedIcon />}
+                  onClick={handleAddSpec}
+                  sx={{ alignSelf: 'flex-start' }}
+                >
+                  Thêm thông số
+                </Button>
+              </Stack>
+            </AdminSurface>
+
+            {/* ── MEDIA ── */}
             <AdminSurface title={mode === 'create' ? 'Media sản phẩm' : 'Cập nhật media'}>
               <Stack rowGap={3}>
                 <TextField
@@ -372,61 +468,9 @@ export const ProductEditorForm = ({
               </Stack>
             </AdminSurface>
 
-            <AdminSurface title="Thông số kỹ thuật">
-  <Stack rowGap={2}>
-    {specs.map((spec, index) => (
-      <Grid container spacing={2} key={index}>
-        <Grid item xs={5}>
-          <TextField
-            fullWidth
-            label="Tên thông số (VD: DPI)"
-            value={spec.key}
-            onChange={(e) => {
-  const newSpecs = specs.map((item, i) =>
-    i === index ? { ...item, key: e.target.value } : item
-  )
-  setSpecs(newSpecs)
-}}
-          />
-        </Grid>
-
-        <Grid item xs={5}>
-          <TextField
-            fullWidth
-            label="Giá trị (VD: 1600)"
-            value={spec.value}
-            onChange={(e) => {
-              const newSpecs = [...specs]
-              newSpecs[index].value = e.target.value
-              setSpecs(newSpecs)
-            }}
-          />
-        </Grid>
-
-        <Grid item xs={2}>
-          <Button
-            color="error"
-            onClick={() => {
-              setSpecs(specs.filter((_, i) => i !== index))
-            }}
-          >
-            Xóa
-          </Button>
-        </Grid>
-      </Grid>
-    ))}
-
-    <Button
-      variant="outlined"
-      onClick={() => setSpecs([...specs, { key: '', value: '' }])}
-    >
-      + Thêm thông số
-    </Button>
-  </Stack>
-</AdminSurface>
-
           </Stack>
 
+          {/* ── SIDEBAR ── */}
           <AdminSurface
             sx={{
               width: is1100 ? '100%' : '26rem',
@@ -469,11 +513,34 @@ export const ProductEditorForm = ({
                 ))}
               </Stack>
 
+              {/* Specs summary in sidebar */}
+              {specs.filter(s => s.key.trim() && s.value.trim()).length > 0 && (
+                <Stack rowGap={1}>
+                  <Typography variant="subtitle1" fontWeight={700}>
+                    Thông số ({specs.filter(s => s.key.trim() && s.value.trim()).length})
+                  </Typography>
+                  <Stack rowGap={0.4}>
+                    {specs
+                      .filter(s => s.key.trim() && s.value.trim())
+                      .slice(0, 5)
+                      .map((s, i) => (
+                        <Typography key={i} variant="caption" color="text.secondary">
+                          • {s.key}: {s.value}
+                        </Typography>
+                      ))}
+                    {specs.filter(s => s.key.trim() && s.value.trim()).length > 5 && (
+                      <Typography variant="caption" color="primary">
+                        +{specs.filter(s => s.key.trim() && s.value.trim()).length - 5} thông số khác
+                      </Typography>
+                    )}
+                  </Stack>
+                </Stack>
+              )}
+
               <Stack rowGap={1}>
                 <Typography variant="subtitle1" fontWeight={700}>
                   Ảnh đại diện
                 </Typography>
-
                 {thumbnailFile ? (
                   renderPreviewImage(URL.createObjectURL(thumbnailFile), title || 'thumbnail')
                 ) : initialProduct?.thumbnail ? (
@@ -508,19 +575,15 @@ export const ProductEditorForm = ({
                         </React.Fragment>
                       ))}
                 </Stack>
-
                 {!selectedGalleryFiles.length && !(initialProduct?.images || []).length ? (
-                  <Typography variant="caption" color="text.secondary">Chưa có ảnh chi tiết</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Chưa có ảnh chi tiết
+                  </Typography>
                 ) : null}
               </Stack>
 
               <AdminSurface
-                sx={{
-                  p: 2,
-                  borderRadius: 4,
-                  bgcolor: '#f8fafc',
-                  borderStyle: 'dashed',
-                }}
+                sx={{ p: 2, borderRadius: 4, bgcolor: '#f8fafc', borderStyle: 'dashed' }}
               >
                 <Stack rowGap={0.8}>
                   <Typography fontWeight={700}>{noteTitle}</Typography>

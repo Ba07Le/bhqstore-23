@@ -179,6 +179,14 @@ exports.handleChat = async (req, res) => {
                                 }
                             },
                             {
+                                "$lookup": {                          // ← thêm lookup brand
+                                "from": "brands",
+                                "localField": "brand",
+                                "foreignField": "_id",
+                                "as": "brandInfo"
+                                }
+                            },
+                            {
                                 "$project": {
                                     "title": 1,
                                     "price": 1,
@@ -186,6 +194,8 @@ exports.handleChat = async (req, res) => {
                                     "thumbnail": 1,
                                     "stockQuantity": 1,
                                     "tags": 1,
+                                    "specifications": 1,
+                                    "brand": { "$arrayElemAt": ["$brandInfo", 0] }, 
                                     "averageRating": { "$avg": "$customerReviews.rating" },
                                     "totalReviews": { "$size": "$customerReviews" },
                                     "topComments": { "$slice": ["$customerReviews.comment", 2] }
@@ -218,12 +228,17 @@ exports.handleChat = async (req, res) => {
                                 .map(tag => `${tagEmojis[tag] || '🏷️'} ${tag}`)
                                 .join(', ');
 
+                        const specsText = p.specifications?.length > 0
+                                ? p.specifications.map(s => `${s.key}: ${s.value}`).join(' | ')
+                                : 'Không có thông số';
+
                             return {
                                 id: p._id.toString(),
                                 name: p.title,
                                 price: `${p.price} USD`,
                                 thumbnail: p.thumbnail,
                                 tags: p.tags,
+                                brand: p.brand || null, 
                                 tagsDisplay: tagEmojisStr || "Không có tag",
                                 rating: p.averageRating ? `${p.averageRating.toFixed(1)}/5` : "Chưa có đánh giá",
                                 review_count: p.totalReviews,

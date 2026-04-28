@@ -52,7 +52,6 @@ export const ProductUpdate = () => {
   }, [dispatch, id])
 
   useEffect(() => {
-    // 🔥 FIX typo quan trọng
     if (productUpdateStatus === 'fulfilled') {
       toast.success('Sản phẩm đã được cập nhật thành công')
       navigate('/admin/dashboard')
@@ -81,6 +80,8 @@ export const ProductUpdate = () => {
         price: data.price,
         stockQuantity: data.stockQuantity,
         tags: data.tags || [],
+        // ✅ Fix: specifications is already an array from ProductEditorForm
+        // Backend expects JSON string via req.body.specifications
         specifications: JSON.stringify(data.specifications || []),
         thumbnail: data.thumbnail?.[0] || selectedProduct.thumbnail,
         images: productImageFieldNames
@@ -130,7 +131,7 @@ export const ProductUpdate = () => {
         initialProduct={selectedProduct}
         brands={brands}
         categories={categories}
-        availableTags={AVAILABLE_TAGS} 
+        availableTags={AVAILABLE_TAGS}
         submitStatus={productUpdateStatus}
         submitLabel="Lưu thay đổi"
         pendingLabel="Đang cập nhật..."
