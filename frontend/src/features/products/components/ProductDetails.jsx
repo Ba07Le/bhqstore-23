@@ -471,27 +471,27 @@ export const ProductDetails = () => {
           </Stack>
         </Stack>
 
-       {product.specifications && product.specifications.length > 0 && (
-  <Box
-    mt={6}
+        <Box
+  mt={6}
+  sx={{
+    maxWidth: '700px',
+    ml: 0,
+  }}
+>
+  <Paper
+    elevation={0}
     sx={{
-      maxWidth: '700px',
-      ml: 0,
+      p: 3,
+      borderRadius: 3,
+      border: '1px solid #ddd',
+      bgcolor: '#fff'
     }}
   >
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        border: '1px solid #eee',
-        bgcolor: '#fff'
-      }}
-    >
-      <Typography variant="h6" fontWeight={700} mb={2}>
-        Thông số kỹ thuật
-      </Typography>
+    <Typography variant="h6" fontWeight={700} mb={2}>
+      Thông số kỹ thuật
+    </Typography>
 
+    {(product.specifications?.length > 0) ? (
       <Stack>
         {product.specifications.map((spec, index) => (
           <Stack
@@ -512,9 +512,13 @@ export const ProductDetails = () => {
           </Stack>
         ))}
       </Stack>
-    </Paper>
-  </Box>
-)}
+    ) : (
+      <Typography color="text.secondary" fontStyle="italic">
+        Chưa có thông số kỹ thuật
+      </Typography>
+    )}
+  </Paper>
+</Box>
 
         <Box mt={8} width={is1420 ? '95vw' : '88rem'}>
           <Reviews productId={id} averageRating={averageRating} />
