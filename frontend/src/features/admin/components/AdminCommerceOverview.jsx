@@ -323,12 +323,25 @@ export const AdminCommerceOverview = ({
                 </Stack>
               ))}
 
-              {inventoryAlerts.slice(0, 4).map((product) => (
+              {inventoryAlerts.slice(0, 6).map((product) => (
                 <Stack key={product._id} direction="row" justifyContent="space-between" alignItems="center" gap={1.5} py={0.8} borderBottom="1px solid" borderColor="divider">
                   <Stack direction="row" gap={1} alignItems="center">
                     <Avatar src={getImageUrl(product.thumbnail)} variant="rounded" sx={{ width: 32, height: 32 }} />
                     <Stack minWidth={0}>
-                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }} noWrap>{product.title}</Typography>
+                      <Typography
+  sx={{
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    wordBreak: 'break-word',
+    overflowWrap: 'break-word',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,        // giới hạn 2 dòng
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  }}
+>
+  {product.title}
+</Typography>
                       <Typography sx={{ fontSize: '0.75rem' }} color="text.secondary">Tồn: {product.stockQuantity}</Typography>
                     </Stack>
                   </Stack>
