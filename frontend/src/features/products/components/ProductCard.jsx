@@ -27,6 +27,7 @@ export const ProductCard = ({
     thumbnail,
     brand,
     stockQuantity,
+    tags,
     handleAddRemoveFromWishlist,
     isWishlistCard,
     isAdminCard,
@@ -151,6 +152,27 @@ export const ProductCard = ({
                     {typeof brand === 'object' ? brand?.name : (brand || 'Thương hiệu')}
 
                 </Typography>
+
+                {/* TAGS */}
+{tags?.length > 0 && (
+  <Stack direction="row" flexWrap="wrap" gap={0.5} mt={0.5}>
+    {tags.map((tag, index) => (
+      <Typography
+        key={index}
+        sx={{
+          fontSize: '0.65rem',
+          px: 0.8,
+          py: 0.2,
+          borderRadius: '6px',
+          bgcolor: '#eee',
+          color: '#333',
+        }}
+      >
+        {tag}
+      </Typography>
+    ))}
+  </Stack>
+)}
 
                 {/* Phần Stock - Giữ chiều cao cố định để không bị giật card */}
                 <Stack minHeight="20px">

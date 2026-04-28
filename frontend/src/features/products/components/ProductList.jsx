@@ -297,6 +297,7 @@ export const ProductList = () => {
                                             brand={product.brand}
                                             price={product.price}
                                             stockQuantity={product.stockQuantity}
+                                            tags={product.tags}
                                             handleAddRemoveFromWishlist={handleAddRemoveFromWishlist}
                                         />
                                     </Grid>

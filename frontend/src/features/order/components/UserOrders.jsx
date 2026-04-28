@@ -172,7 +172,7 @@ export const UserOrders = () => {
                         <Typography>{item.product ? formatCurrency(item.product.price) : "0đ"}</Typography>
                       </Stack>
 
-                      <Typography color="text.secondary">{item.product?.description || ""}</Typography>
+                      
 
                       <Stack mt={2} alignSelf={is480 ? 'flex-start' : 'flex-end'} flexDirection="row" columnGap={2}>
                         <Button

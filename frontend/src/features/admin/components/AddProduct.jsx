@@ -80,6 +80,7 @@ export const AddProduct = () => {
     } else {
       formData.append('tags', '')
     }
+    formData.append('specifications', JSON.stringify(data.specifications || []))
     
     formData.append('thumbnail', data.thumbnail[0])
 

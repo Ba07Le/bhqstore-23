@@ -20,6 +20,27 @@ exports.create = async (req, res) => {
       data.tags = [];
     }
 
+  
+
+// ✅ Parse specifications (FIX CHUẨN)
+if (req.body.specifications) {
+  try {
+    data.specifications =
+      typeof req.body.specifications === "string"
+        ? JSON.parse(req.body.specifications)
+        : req.body.specifications;
+
+    // ✅ lọc dữ liệu rỗng
+    data.specifications = data.specifications.filter(
+      (s) => s.key && s.value
+    );
+  } catch (err) {
+    return res.status(400).json({ message: "Specifications không hợp lệ" });
+  }
+} else {
+  data.specifications = [];
+}
+
     // --- LOGIC AI: TẠO VECTOR KHI THÊM MỚI ---
     try {
       const response = await openai.embeddings.create({
@@ -71,6 +92,23 @@ exports.updateById = async (req, res) => {
     } else if (!updateData.tags) {
       updateData.tags = [];
     }
+
+// ✅ Parse specifications khi update (FIX QUAN TRỌNG)
+if ("specifications" in req.body) {
+  try {
+    updateData.specifications =
+      typeof req.body.specifications === "string"
+        ? JSON.parse(req.body.specifications)
+        : req.body.specifications;
+
+    // ✅ lọc dữ liệu rỗng
+    updateData.specifications = updateData.specifications.filter(
+      (s) => s.key && s.value
+    );
+  } catch (err) {
+    return res.status(400).json({ message: "Specifications không hợp lệ" });
+  }
+}
 
     // --- LOGIC AI: CẬP NHẬT VECTOR NẾU THAY ĐỔI NỘI DUNG ---
     if (req.body.title || req.body.description) {

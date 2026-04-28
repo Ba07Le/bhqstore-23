@@ -21,6 +21,21 @@ import { productImageFieldNames } from '../adminConfig'
 import { AdminSurface } from './AdminSurface'
 import { ProductEditorForm } from './ProductEditorForm'
 
+const AVAILABLE_TAGS = [
+  { value: 'gaming', label: 'Gaming' },
+  { value: 'office', label: 'Office' },
+  { value: 'professional', label: 'Professional' },
+  { value: 'budget', label: 'Budget' },
+  { value: 'premium', label: 'Premium' },
+  { value: 'wireless', label: 'Wireless' },
+  { value: 'wired', label: 'Wired' },
+  { value: 'rgb', label: 'RGB' },
+  { value: 'mechanical', label: 'Mechanical' },
+  { value: 'noise-cancelling', label: 'Noise-Cancelling' },
+  { value: 'portable', label: 'Portable' },
+  { value: 'studio', label: 'Studio' },
+]
+
 export const ProductUpdate = () => {
   const { id } = useParams()
   const dispatch = useDispatch()
@@ -65,6 +80,8 @@ export const ProductUpdate = () => {
         description: data.description.trim(),
         price: data.price,
         stockQuantity: data.stockQuantity,
+        tags: data.tags || [],
+        specifications: JSON.stringify(data.specifications || []),
         thumbnail: data.thumbnail?.[0] || selectedProduct.thumbnail,
         images: productImageFieldNames
           .map((fieldName, index) => data[fieldName]?.[0] || selectedProduct.images?.[index])
@@ -113,6 +130,7 @@ export const ProductUpdate = () => {
         initialProduct={selectedProduct}
         brands={brands}
         categories={categories}
+        availableTags={AVAILABLE_TAGS} 
         submitStatus={productUpdateStatus}
         submitLabel="Lưu thay đổi"
         pendingLabel="Đang cập nhật..."

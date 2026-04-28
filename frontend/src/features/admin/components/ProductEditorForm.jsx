@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Box,
   Button,
@@ -87,6 +87,16 @@ export const ProductEditorForm = ({
     formState: { errors },
   } = useForm({ defaultValues })
 
+  const [specs, setSpecs] = useState(() => {
+  if (initialProduct?.specifications) {
+    return initialProduct.specifications.map(item => ({
+      key: item.key || '',
+      value: item.value || ''
+    }))
+  }
+  return [{ key: '', value: '' }]
+})
+
   const title = watch('title')
   const description = watch('description')
   const price = watch('price')
@@ -97,6 +107,7 @@ export const ProductEditorForm = ({
   const thumbnailFile = watch('thumbnail')?.[0]
   const galleryFiles = productImageFieldNames.map((fieldName) => watch(fieldName)?.[0])
   const selectedGalleryFiles = galleryFiles.filter(Boolean)
+
 
   const checklist = useMemo(
     () =>
@@ -170,7 +181,12 @@ export const ProductEditorForm = ({
         }
       />
 
-      <Stack component="form" rowGap={3} noValidate onSubmit={handleSubmit(onSubmit)}>
+      <Stack component="form" rowGap={3} noValidate onSubmit={handleSubmit((data) => {
+  onSubmit({
+    ...data,
+    specifications: specs
+  })
+})}>
         <Stack direction={is1100 ? 'column' : 'row'} gap={3} alignItems="flex-start">
           <Stack flex={1} rowGap={3} width="100%">
             <AdminSurface title="Thông tin cơ bản">
@@ -322,6 +338,7 @@ export const ProductEditorForm = ({
               </AdminSurface>
             )}
 
+
             <AdminSurface title={mode === 'create' ? 'Media sản phẩm' : 'Cập nhật media'}>
               <Stack rowGap={3}>
                 <TextField
@@ -354,6 +371,60 @@ export const ProductEditorForm = ({
                 </Stack>
               </Stack>
             </AdminSurface>
+
+            <AdminSurface title="Thông số kỹ thuật">
+  <Stack rowGap={2}>
+    {specs.map((spec, index) => (
+      <Grid container spacing={2} key={index}>
+        <Grid item xs={5}>
+          <TextField
+            fullWidth
+            label="Tên thông số (VD: DPI)"
+            value={spec.key}
+            onChange={(e) => {
+  const newSpecs = specs.map((item, i) =>
+    i === index ? { ...item, key: e.target.value } : item
+  )
+  setSpecs(newSpecs)
+}}
+          />
+        </Grid>
+
+        <Grid item xs={5}>
+          <TextField
+            fullWidth
+            label="Giá trị (VD: 1600)"
+            value={spec.value}
+            onChange={(e) => {
+              const newSpecs = [...specs]
+              newSpecs[index].value = e.target.value
+              setSpecs(newSpecs)
+            }}
+          />
+        </Grid>
+
+        <Grid item xs={2}>
+          <Button
+            color="error"
+            onClick={() => {
+              setSpecs(specs.filter((_, i) => i !== index))
+            }}
+          >
+            Xóa
+          </Button>
+        </Grid>
+      </Grid>
+    ))}
+
+    <Button
+      variant="outlined"
+      onClick={() => setSpecs([...specs, { key: '', value: '' }])}
+    >
+      + Thêm thông số
+    </Button>
+  </Stack>
+</AdminSurface>
+
           </Stack>
 
           <AdminSurface

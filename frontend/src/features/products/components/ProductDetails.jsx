@@ -321,6 +321,37 @@ export const ProductDetails = () => {
                 {product.title}
               </Typography>
 
+              {/* BRAND + TAGS */}
+<Stack direction="row" alignItems="center" flexWrap="wrap" gap={1} mt={1}>
+  {/* Brand */}
+  <Typography variant="body2" color="text.secondary">
+    {typeof product.brand === 'object'
+      ? product.brand?.name
+      : product.brand}
+  </Typography>
+
+  {/* Tags */}
+  {product.tags?.length > 0 && (
+    <Stack direction="row" flexWrap="wrap" gap={0.5}>
+      {product.tags.map((tag, index) => (
+        <Typography
+          key={index}
+          sx={{
+            fontSize: '0.7rem',
+            px: 1,
+            py: 0.3,
+            borderRadius: '8px',
+            bgcolor: '#eee',
+            color: '#333',
+          }}
+        >
+          {tag}
+        </Typography>
+      ))}
+    </Stack>
+  )}
+</Stack>
+
               <Stack flexDirection="row" alignItems="center" columnGap={1}>
                 <Rating value={averageRating} readOnly precision={0.5} />
                 <Typography variant="body2" color="text.secondary">
@@ -439,6 +470,51 @@ export const ProductDetails = () => {
             </Stack>
           </Stack>
         </Stack>
+
+       {product.specifications && product.specifications.length > 0 && (
+  <Box
+    mt={6}
+    sx={{
+      maxWidth: '700px',
+      ml: 0,
+    }}
+  >
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        border: '1px solid #eee',
+        bgcolor: '#fff'
+      }}
+    >
+      <Typography variant="h6" fontWeight={700} mb={2}>
+        Thông số kỹ thuật
+      </Typography>
+
+      <Stack>
+        {product.specifications.map((spec, index) => (
+          <Stack
+            key={index}
+            direction="row"
+            justifyContent="space-between"
+            sx={{
+              py: 1.5,
+              borderBottom: '1px solid #ddd',
+            }}
+          >
+            <Typography color="text.secondary">
+              {spec.key}
+            </Typography>
+            <Typography fontWeight={600}>
+              {spec.value}
+            </Typography>
+          </Stack>
+        ))}
+      </Stack>
+    </Paper>
+  </Box>
+)}
 
         <Box mt={8} width={is1420 ? '95vw' : '88rem'}>
           <Reviews productId={id} averageRating={averageRating} />

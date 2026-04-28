@@ -28,6 +28,14 @@ const productSchema = new Schema({
         ],
         default:[]
     },
+
+    specifications: [
+  {
+    key: { type: String, required: true },
+    value: { type: String, required: true },
+  }
+],
+
     isDeleted: { type: Boolean, default: false },
     // Trường vector để AI tìm kiếm (Vector Search)
     description_vector: { type: [Number], default: [] }
