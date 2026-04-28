@@ -168,7 +168,23 @@ const AIChat = ({ onProductsFound }) => {
                     />
                 );
             }
-
+            if (line.startsWith('🔧 Thông số kỹ thuật:')) {
+                return (
+                <div key={lineIdx} style={{
+            marginTop: '6px',
+            padding: '8px',
+            backgroundColor: '#f0f9ff',
+            borderRadius: '8px',
+            fontSize: '12px',
+            color: '#0369a1'
+        }}>
+            <strong>🔧 Thông số kỹ thuật:</strong>
+            <div style={{ marginTop: '4px' }}>
+                {line.replace('🔧 Thông số kỹ thuật:', '').trim()}
+            </div>
+        </div>
+    );
+}
             const idMatch = line.match(/\[ID:\s*(.*?)\]/);
             if (idMatch) {
                 const pId = idMatch[1].trim();
