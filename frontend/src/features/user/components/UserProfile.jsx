@@ -1,12 +1,14 @@
 import { Avatar, Button, Paper, Stack, Typography, useTheme ,TextField, useMediaQuery} from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectUserInfo } from '../UserSlice'
+import { selectUserInfo, selectUserStatus, selectUserUpdateStatus } from '../UserSlice'
 import { addAddressAsync, resetAddressAddStatus, resetAddressDeleteStatus, resetAddressUpdateStatus, selectAddressAddStatus, selectAddressDeleteStatus, selectAddressErrors, selectAddressStatus, selectAddressUpdateStatus, selectAddresses } from '../../address/AddressSlice'
 import { Address } from '../../address/components/Address'
 import { useForm } from 'react-hook-form'
 import { LoadingButton } from '@mui/lab'
 import {toast} from 'react-toastify'
+import { EditProfileModal } from "./EditProfileModal";
+
 
 export const UserProfile = () => {
 
@@ -17,6 +19,8 @@ export const UserProfile = () => {
     const addresses=useSelector(selectAddresses)
     const theme=useTheme()
     const [addAddress,setAddAddress]=useState(false)
+    const [openEdit, setOpenEdit] = useState(false);
+    const updateStatus = useSelector(selectUserUpdateStatus);
 
     
     const addressAddStatus=useSelector(selectAddressAddStatus)
@@ -42,6 +46,14 @@ export const UserProfile = () => {
             toast.error("Lỗi khi thêm địa chỉ, vui lòng thử lại sau")
         }
     },[addressAddStatus])
+
+ useEffect(() => {
+  if (updateStatus === "fulfilled") {
+    toast.success("Cập nhật profile thành công");
+  } else if (updateStatus === "rejected") {
+    toast.error("Cập nhật thất bại");
+  }
+}, [updateStatus]);
 
     useEffect(()=>{
 
@@ -99,6 +111,9 @@ export const UserProfile = () => {
                         <Stack flexDirection={'row'} alignItems={'center'} justifyContent={'center'} columnGap={1}>
                             <Typography variant='h6' fontWeight={400}>Thêm Địa Chỉ</Typography>
                             <Button onClick={()=>setAddAddress(true)} size={is480?'small':""} variant='contained'>Add</Button>
+                            <Button onClick={() => setOpenEdit(true)} variant="outlined">
+  Chỉnh sửa Profile
+</Button>
                         </Stack>
                         
                          
@@ -163,7 +178,11 @@ export const UserProfile = () => {
 
             </Stack>
 
-
+                                <EditProfileModal
+      open={openEdit}
+      handleClose={() => setOpenEdit(false)}
+      user={userInfo}
+    />
 
     </Stack>
   )

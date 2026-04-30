@@ -4,6 +4,7 @@ import { logoutAsync } from '../auth/AuthSlice';
 
 const initialState={
     status:"idle",
+    updateStatus: "idle",
     userInfo:null,
     errors:null,
     successMessage:null
@@ -17,6 +18,7 @@ export const updateUserByIdAsync=createAsyncThunk('user/updateUserByIdAsync',asy
     const updatedUser=await updateUserById(update)
     return updatedUser
 })
+
 
 const userSlice=createSlice({
     name:"userSlice",
@@ -59,6 +61,7 @@ export const selectUserStatus=(state)=>state.UserSlice.status
 export const selectUserInfo=(state)=>state.UserSlice.userInfo
 export const selectUserErrors=(state)=>state.UserSlice.errors
 export const selectUserSuccessMessage=(state)=>state.UserSlice.successMessage
+export const selectUserUpdateStatus = (state) => state.UserSlice.updateStatus;
 
 
 export default userSlice.reducer
