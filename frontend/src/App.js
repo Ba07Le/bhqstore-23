@@ -37,6 +37,7 @@ import {
   UserProfilePage,
   WishlistPage,
 } from './pages'
+import { AdminStoragePage } from './pages/AdminStoragePage'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import './assets/productDescription.css'
@@ -106,6 +107,14 @@ function App() {
               element={
                 <Protected>
                   <ProductUpdatePage />
+                </Protected>
+              }
+            />
+            <Route
+              path="/admin/storage"
+              element={
+                <Protected>
+                  <AdminStoragePage />
                 </Protected>
               }
             />

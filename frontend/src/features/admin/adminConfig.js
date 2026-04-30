@@ -1,6 +1,7 @@
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded'
 import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded'
 import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 
 export const adminNavigationItems = [
   {
@@ -14,6 +15,12 @@ export const adminNavigationItems = [
     helper: 'Xử lý và cập nhật vận đơn',
     path: '/admin/orders',
     icon: <LocalMallRoundedIcon />,
+  },
+  {
+    label: 'Kho cửa hàng',
+    helper: 'Quản lí tồn kho',
+    path: '/admin/storage',
+    icon: <Inventory2OutlinedIcon />,
   },
   {
     label: 'Thêm sản phẩm',
