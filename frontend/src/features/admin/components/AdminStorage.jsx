@@ -260,17 +260,10 @@ export const AdminStorage = () => {
       <AdminSurface
           title="Bàn làm việc vận hành"
           description="Quản lý danh mục sản phẩm theo kiểu Seller Center."
+          sx={{ mb: 3 }} // Thêm margin-bottom để cách xa các card số liệu phía dưới
           actions={
             <Stack direction={is500 ? 'column' : 'row'} gap={1}>
-              <Button
-                size="small"
-                variant="outlined"
-                color="inherit"
-                startIcon={<TuneRoundedIcon fontSize="small" />}
-                onClick={() => dispatch(toggleFilters())}
-              >
-                Bộ lọc
-              </Button>
+            
               <Button
                 size="small"
                 component={Link}
@@ -284,7 +277,8 @@ export const AdminStorage = () => {
           }
         />
 
-        <Grid container spacing={1.5}>
+        {/* Chỉnh spacing lên 3 để các ô chỉ số cách nhau rõ hơn */}
+        <Grid container spacing={3} sx={{ mb: 3 }}> 
           {visibleStats.map((item) => (
             <Grid key={item.label} item xs={12} sm={6} xl={3}>
               <AdminMetricCard
@@ -298,23 +292,27 @@ export const AdminStorage = () => {
           ))}
         </Grid>
 
-        <InventoryExcelCenter
-          filters={filters}
-          sort={sort}
-          searchQuery={searchQuery}
-          stockStatus={stockStatus}
-          deleteStatus={deleteStatus}
-          onInventoryChanged={handleInventoryChanged}
-        />
+        {/* Box Excel Center cũng cần margin-bottom */}
+        <Stack sx={{ mb: 3 }}>
+            <InventoryExcelCenter
+              filters={filters}
+              sort={sort}
+              searchQuery={searchQuery}
+              stockStatus={stockStatus}
+              deleteStatus={deleteStatus}
+              onInventoryChanged={handleInventoryChanged}
+            />
+        </Stack>
 
-        <Grid container spacing={2}>
+        {/* Chỉnh spacing container bộ lọc lên 3 */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} lg={8}>
             <AdminSurface>
               <Stack
                 component="form"
                 onSubmit={handleSearchSubmit}
                 direction={is1200 ? 'column' : 'row'}
-                gap={1.5}
+                gap={2} // Tăng gap giữa các input
               >
                 <TextField
                   fullWidth
@@ -371,7 +369,7 @@ export const AdminStorage = () => {
                 </Button>
               </Stack>
 
-              <Stack mt={1.5} direction="row" gap={0.8} flexWrap="wrap">
+              <Stack mt={2} direction="row" gap={1} flexWrap="wrap">
                 <Chip size="small" label={`Kết quả: ${totalResults}`} color="primary" variant="outlined" />
                 {searchQuery && <Chip size="small" label={`Từ khóa: ${searchQuery}`} />}
                 {hasActiveFilters && (
@@ -385,7 +383,7 @@ export const AdminStorage = () => {
 
           <Grid item xs={12} lg={4}>
             <AdminSurface title="Cần xử lý" sx={{ height: '100%' }}>
-              <Stack rowGap={1}>
+              <Stack rowGap={1.5}> {/* Tăng khoảng cách các dòng trong hàng đợi xử lý */}
                 {priorityQueue.length ? (
                   priorityQueue.map((product) => {
                     const stockMeta = getStockMeta(product.stockQuantity)
@@ -396,7 +394,7 @@ export const AdminStorage = () => {
                         justifyContent="space-between"
                         alignItems="center"
                         gap={1}
-                        py={0.8}
+                        py={1} // Tăng padding y
                         borderBottom="1px solid"
                         borderColor="divider"
                       >
@@ -430,19 +428,19 @@ export const AdminStorage = () => {
         </Grid>
 
         {productFetchStatus === 'pending' && !products.length ? (
-          <AdminSurface sx={{ p: 3 }}>
+          <AdminSurface sx={{ p: 3, mb: 3 }}>
             <Stack alignItems="center" rowGap={1}>
               <Typography variant="body1" fontWeight={700}>Đang đồng bộ dữ liệu...</Typography>
             </Stack>
           </AdminSurface>
         ) : products.length ? (
-          <AdminSurface sx={{ p: 0, borderRadius: 3, overflow: 'hidden' }}>
+          <AdminSurface sx={{ p: 0, borderRadius: 3, overflow: 'hidden', mb: 3 }}>
             <Stack
               direction="row"
               justifyContent="space-between"
               alignItems="center"
               px={2}
-              py={1.5}
+              py={2} // Tăng padding cho header của bảng
               sx={{ bgcolor: '#fff' }}
             >
               <Typography variant="body1" fontWeight={800}>
@@ -459,7 +457,7 @@ export const AdminStorage = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                    <TableCell sx={{ fontWeight: 700, py: 1 }}>Sản phẩm</TableCell>
+                    <TableCell sx={{ fontWeight: 700, py: 1.5 }}>Sản phẩm</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Giá</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Tồn kho</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Trạng thái</TableCell>
@@ -474,8 +472,8 @@ export const AdminStorage = () => {
 
                     return (
                       <TableRow key={product._id} hover>
-                        <TableCell sx={{ py: 1 }}>
-                          <Stack direction="row" gap={1} alignItems="center">
+                        <TableCell sx={{ py: 1.5 }}> {/* Tăng padding để bảng thoáng hơn */}
+                          <Stack direction="row" gap={1.5} alignItems="center">
                             <Avatar
                               src={getImageUrl(product.thumbnail)}
                               variant="rounded"
@@ -493,7 +491,7 @@ export const AdminStorage = () => {
                         </TableCell>
                         <TableCell sx={{ fontSize: '0.875rem' }}>{formatCurrency(product.price)}</TableCell>
                         <TableCell>
-                          <Stack spacing={0.5} sx={{ minWidth: 100 }}>
+                          <Stack spacing={0.8} sx={{ minWidth: 100 }}>
                             <Typography variant="caption" fontWeight={700}>{product.stockQuantity}</Typography>
                             <LinearProgress
                               variant="determinate"
@@ -507,7 +505,7 @@ export const AdminStorage = () => {
                           <Chip size="small" label={visibilityMeta.label} color={visibilityMeta.color} sx={{ fontSize: '0.7rem' }} />
                         </TableCell>
                         <TableCell align="right">
-                          <Stack direction="row" gap={0.5} justifyContent="flex-end">
+                          <Stack direction="row" gap={1} justifyContent="flex-end">
                             <IconButton
                               size="small"
                               component={Link}
@@ -540,7 +538,7 @@ export const AdminStorage = () => {
         {(() => {
           const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
           return (
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mt={2}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mt={3} mb={5}>
               <Typography variant="caption" color="text.secondary">
                 Trang {page} / {totalPages}
               </Typography>
@@ -576,4 +574,4 @@ export const AdminStorage = () => {
         })()}
     </>
   )
-} 
+}
