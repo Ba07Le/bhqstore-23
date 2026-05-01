@@ -1,6 +1,8 @@
 const express = require("express");
 const productController = require("../controllers/Product");
 const multer = require("multer");
+const { verifyToken } = require("../middleware/VerifyToken");
+const { requireAdmin } = require("../middleware/VerifyAdmin");
 
 const path = require("path");
 const fs = require("fs");
@@ -32,6 +34,10 @@ const upload = multer({ storage });
 
 
 router
+
+  .get("/inventory/snapshot", verifyToken, requireAdmin, productController.getInventorySnapshot)
+  .get("/inventory/history", verifyToken, requireAdmin, productController.getInventoryHistory)
+  .post("/inventory/bulk-update", verifyToken, requireAdmin, productController.bulkUpdateInventory)
 
   .post(
     "/",

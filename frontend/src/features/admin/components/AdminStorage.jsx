@@ -76,6 +76,7 @@ import { AdminCommerceOverview } from './AdminCommerceOverview'
 import { AdminMetricCard } from './AdminMetricCard'
 import { AdminSurface } from './AdminSurface'
 import PaginationItem from '@mui/material/PaginationItem';
+import { InventoryExcelCenter } from './InventoryExcelCenter'
 
 export const AdminStorage = () => {
   const [analyticsRange, setAnalyticsRange] = useState('30d')
@@ -156,6 +157,17 @@ export const AdminStorage = () => {
     }
     setFilters({ ...filters, category: [...nextValues] })
   }
+
+  const handleInventoryChanged = () => {
+  dispatch(fetchProductsAsync({
+    ...filters,
+    admin: true,
+    pagination: { page, limit: ITEMS_PER_PAGE },
+    sort,
+  }));
+
+  dispatch(getOrderOverviewAsync({ range: analyticsRange }));
+};
 
   const handleFilterClose = () => dispatch(toggleFilters())
 
@@ -285,6 +297,15 @@ export const AdminStorage = () => {
             </Grid>
           ))}
         </Grid>
+
+        <InventoryExcelCenter
+          filters={filters}
+          sort={sort}
+          searchQuery={searchQuery}
+          stockStatus={stockStatus}
+          deleteStatus={deleteStatus}
+          onInventoryChanged={handleInventoryChanged}
+        />
 
         <Grid container spacing={2}>
           <Grid item xs={12} lg={8}>

@@ -114,3 +114,22 @@ export const deleteProductById=async(id)=>{
         throw error.response.data
     }
 }
+
+// ✅ Lịch sử kho
+export const fetchInventoryHistory = async (limit = 10) => {
+  const res = await axiosi.get(`/products/inventory/history?limit=${limit}`);
+  return res.data;
+};
+
+// ✅ Snapshot
+export const fetchInventorySnapshot = async (filters) => {
+  const params = new URLSearchParams(filters).toString();
+  const res = await axiosi.get(`/products/inventory/snapshot?${params}`);
+  return res.data;
+};
+
+// ✅ Bulk update
+export const bulkUpdateInventory = async (data) => {
+  const res = await axiosi.post(`/products/inventory/bulk-update`, data);
+  return res.data;
+};

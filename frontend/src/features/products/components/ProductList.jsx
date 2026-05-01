@@ -52,7 +52,6 @@ export const ProductList = () => {
 
     const is1200 = useMediaQuery(theme.breakpoints.down(1200))
     const is800 = useMediaQuery(theme.breakpoints.down(800))
-    const is700 = useMediaQuery(theme.breakpoints.down(700))
     const is600 = useMediaQuery(theme.breakpoints.down(600))
     const is500 = useMediaQuery(theme.breakpoints.down(500))
     const is488 = useMediaQuery(theme.breakpoints.down(488))
@@ -287,9 +286,15 @@ export const ProductList = () => {
                                 </Typography>
                             </Stack>
                         ) : (
-                            <Grid container spacing={3} sx={{ padding: '0 1rem' }}>
+                            <Grid container spacing={1} sx={{ padding: '0 1rem' }}>
                                 {products.map((product) => (
-                                    <Grid item sm={6} md={4} lg={3} xl={3} key={product._id} sx={{ display: 'flex' }}>
+                                    /* Thay đổi ở đây: 
+                                       xs={6} (2 sp/hàng trên mobile)
+                                       sm={4} (3 sp/hàng)
+                                       md={3} (4 sp/hàng)
+                                       lg={2.4} (Đây là điểm mấu chốt để có 5 sp/hàng: 12 / 5 = 2.4)
+                                    */
+                                    <Grid item xs={6} sm={4} md={3} lg={2.4} key={product._id} sx={{ display: 'flex' }}>
                                         <ProductCard
                                             id={product._id}
                                             title={product.title}
