@@ -4,7 +4,6 @@ const OpenAI = require("openai");
 const { randomUUID } = require("crypto");
 const InventoryTransaction = require("../models/InventoryTransaction");
 
-// Khởi tạo OpenAI (Đảm bảo đã có OPENAI_API_KEY trong file .env)
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const toObjectIdList = (value) => {
@@ -109,6 +108,14 @@ const formatInventoryProduct = (product) => ({
   updatedAt: product.updatedAt,
 });
 
+//Helper: build embed input từ title + description + specifications
+const buildEmbedInput = (title = "", description = "", specifications = []) => {
+  const specsText = specifications?.length > 0
+    ? `. Thông số kỹ thuật: ${specifications.map(s => `${s.key}: ${s.value}`).join(', ')}`
+    : '';
+  return `${title} ${description}${specsText}`.trim();
+};
+
 exports.create = async (req, res) => {
   try {
     const data = { ...req.body };
@@ -117,44 +124,42 @@ exports.create = async (req, res) => {
     data.stockQuantity = Number(data.stockQuantity);
     data.description = data.description || "";
 
-    // ✅ Parse tags if it's a string (from FormData)
+    //Parse tags
     if (data.tags && typeof data.tags === 'string') {
       data.tags = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     } else if (!data.tags) {
       data.tags = [];
     }
 
-  
+    //Parse specifications
+    if (req.body.specifications) {
+      try {
+        data.specifications =
+          typeof req.body.specifications === "string"
+            ? JSON.parse(req.body.specifications)
+            : req.body.specifications;
 
-// ✅ Parse specifications (FIX CHUẨN)
-if (req.body.specifications) {
-  try {
-    data.specifications =
-      typeof req.body.specifications === "string"
-        ? JSON.parse(req.body.specifications)
-        : req.body.specifications;
+        data.specifications = data.specifications.filter(
+          (s) => s.key && s.value
+        );
+      } catch (err) {
+        return res.status(400).json({ message: "Specifications không hợp lệ" });
+      }
+    } else {
+      data.specifications = [];
+    }
 
-    // ✅ lọc dữ liệu rỗng
-    data.specifications = data.specifications.filter(
-      (s) => s.key && s.value
-    );
-  } catch (err) {
-    return res.status(400).json({ message: "Specifications không hợp lệ" });
-  }
-} else {
-  data.specifications = [];
-}
-
-    // --- LOGIC AI: TẠO VECTOR KHI THÊM MỚI ---
+    //Tạo vector — bao gồm title + description + specifications
     try {
+      const embedInput = buildEmbedInput(data.title, data.description, data.specifications);
       const response = await openai.embeddings.create({
         model: "text-embedding-3-small",
-        input: `${data.title} ${data.description}`,
+        input: embedInput,
       });
       data.description_vector = response.data[0].embedding;
-      console.log("✅ AI: Đã tạo vector thành công cho sản phẩm mới.");
+      console.log("AI: Đã tạo vector thành công cho sản phẩm mới.");
     } catch (aiError) {
-      console.error("❌ AI: Lỗi tạo Embedding:", aiError.message);
+      console.error("AI: Lỗi tạo Embedding:", aiError.message);
       // Không chặn luồng chính, sản phẩm vẫn được tạo dù AI lỗi
     }
 
@@ -190,41 +195,45 @@ exports.updateById = async (req, res) => {
     updateData.price = Number(updateData.price);
     updateData.stockQuantity = Number(updateData.stockQuantity);
 
-    // ✅ Parse tags if it's a string (from FormData)
+    // tags
     if (updateData.tags && typeof updateData.tags === 'string') {
       updateData.tags = updateData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     } else if (!updateData.tags) {
       updateData.tags = [];
     }
 
-// ✅ Parse specifications khi update (FIX QUAN TRỌNG)
-if ("specifications" in req.body) {
-  try {
-    updateData.specifications =
-      typeof req.body.specifications === "string"
-        ? JSON.parse(req.body.specifications)
-        : req.body.specifications;
-
-    // ✅ lọc dữ liệu rỗng
-    updateData.specifications = updateData.specifications.filter(
-      (s) => s.key && s.value
-    );
-  } catch (err) {
-    return res.status(400).json({ message: "Specifications không hợp lệ" });
-  }
-}
-
-    // --- LOGIC AI: CẬP NHẬT VECTOR NẾU THAY ĐỔI NỘI DUNG ---
-    if (req.body.title || req.body.description) {
+    // Parse specifications
+    if ("specifications" in req.body) {
       try {
+        updateData.specifications =
+          typeof req.body.specifications === "string"
+            ? JSON.parse(req.body.specifications)
+            : req.body.specifications;
+
+        updateData.specifications = updateData.specifications.filter(
+          (s) => s.key && s.value
+        );
+      } catch (err) {
+        return res.status(400).json({ message: "Specifications không hợp lệ" });
+      }
+    }
+
+    //Cập nhật vector khi title, description HOẶC specifications thay đổi
+    if (req.body.title || req.body.description || req.body.specifications) {
+      try {
+        const embedInput = buildEmbedInput(
+          updateData.title || "",
+          updateData.description || "",
+          updateData.specifications || []
+        );
         const response = await openai.embeddings.create({
           model: "text-embedding-3-small",
-          input: `${updateData.title || ""} ${updateData.description || ""}`,
+          input: embedInput,
         });
         updateData.description_vector = response.data[0].embedding;
-        console.log("✅ AI: Đã cập nhật lại vector theo nội dung mới.");
+        console.log("AI: Đã cập nhật lại vector theo nội dung mới.");
       } catch (aiError) {
-        console.error("❌ AI: Lỗi cập nhật Embedding:", aiError.message);
+        console.error("AI: Lỗi cập nhật Embedding:", aiError.message);
       }
     }
 
@@ -263,8 +272,6 @@ if ("specifications" in req.body) {
       .json({ message: "Lỗi khi cập nhật sản phẩm, vui lòng thử lại sau." });
   }
 };
-
-// --- CÁC HÀM GET VÀ DELETE GIỮ NGUYÊN ---
 
 exports.getInventorySnapshot = async (req, res) => {
   try {
@@ -575,46 +582,37 @@ exports.getAll = async (req, res) => {
       ];
     }
 
-    // --- FIX MULTIPLE BRAND ---
     if (req.query.brand) {
       let brands = [];
-
       if (Array.isArray(req.query.brand)) {
         brands = req.query.brand;
       } else if (typeof req.query.brand === "string") {
-        brands = req.query.brand.split(","); // 👈 FIX QUAN TRỌNG
+        brands = req.query.brand.split(",");
       }
-
       filter.brand = {
         $in: brands.map((id) => new mongoose.Types.ObjectId(id.trim())),
       };
     }
 
-    // --- FIX MULTIPLE CATEGORY ---
     if (req.query.category) {
       let categories = [];
-
       if (Array.isArray(req.query.category)) {
         categories = req.query.category;
       } else if (typeof req.query.category === "string") {
-        categories = req.query.category.split(","); // 👈 FIX QUAN TRỌNG
+        categories = req.query.category.split(",");
       }
-
       filter.category = {
         $in: categories.map((id) => new mongoose.Types.ObjectId(id.trim())),
       };
     }
 
-    // ✅ FILTER BY TAGS
     if (req.query.tags) {
       let tags = [];
-
       if (Array.isArray(req.query.tags)) {
         tags = req.query.tags;
       } else if (typeof req.query.tags === "string") {
         tags = req.query.tags.split(",").map(tag => tag.trim());
       }
-
       if (tags.length > 0) {
         filter.tags = { $in: tags };
       }

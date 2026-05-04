@@ -53,7 +53,7 @@ function extractTags(query) {
     return Array.from(foundTags);
 }
 
-// ✅ Cache embeddings to avoid duplicate API calls
+//Cache embeddings to avoid duplicate API calls
 const embeddingCache = new Map();
 
 async function getEmbedding(text) {
@@ -79,7 +79,7 @@ async function searchProducts(query, minPrice, maxPrice) {
     const extractedTags = extractTags(queryLower);
     console.log("🏷️ Extracted tags:", extractedTags);
 
-    // ✅ Run embedding in parallel with building matchQuery
+    //Run embedding in parallel with building matchQuery
     const [embedding] = await Promise.all([
         getEmbedding(queryLower)
     ]);
@@ -98,8 +98,8 @@ async function searchProducts(query, minPrice, maxPrice) {
                 "index": "product",
                 "path": "description_vector",
                 "queryVector": embedding,
-                "numCandidates": 50,  // ✅ reduced from 150
-                "limit": 8            // ✅ reduced from 10
+                "numCandidates": 50,  
+                "limit": 8           
             }
         },
         { "$match": matchQuery },
@@ -159,11 +159,10 @@ async function searchProducts(query, minPrice, maxPrice) {
     });
 }
 
-// ✅ Smart polling — starts fast, backs off gradually
 async function pollRun(threadId, runId) {
     const intervals = [500, 500, 800, 800, 1000, 1000, 1200, 1200, 1500];
     let attempt = 0;
-    const maxAttempts = 40; // ✅ reduced from 120
+    const maxAttempts = 40;
 
     while (attempt < maxAttempts) {
         const delay = intervals[Math.min(attempt, intervals.length - 1)];
@@ -171,7 +170,7 @@ async function pollRun(threadId, runId) {
         attempt++;
 
         const run = await openai.beta.threads.runs.retrieve(threadId, runId);
-        console.log(`⏳ [${attempt}] Status: ${run.status} (waited ${delay}ms)`);
+        console.log(`[${attempt}] Status: ${run.status} (waited ${delay}ms)`);
 
         if (run.status === "completed") return { run, status: "completed" };
         if (run.status === "requires_action") return { run, status: "requires_action" };
@@ -188,7 +187,7 @@ exports.handleChat = async (req, res) => {
     let { message, threadId } = req.body;
     const assistantId = process.env.OPENAI_ASSISTANT_ID;
 
-    console.log("📥 Incoming:", { message, threadId });
+    console.log("Incoming:", { message, threadId });
 
     try {
         // 1. Create thread if needed
@@ -198,7 +197,7 @@ exports.handleChat = async (req, res) => {
             console.log("🧵 New Thread:", threadId);
         }
 
-        // 2. Add message + start run in parallel ✅
+        // 2. Add message + start run in parallel
         const [, createdRun] = await Promise.all([
             openai.beta.threads.messages.create(threadId, {
                 role: "user",
@@ -209,7 +208,7 @@ exports.handleChat = async (req, res) => {
             })
         ]);
 
-        console.log("🚀 Run Started:", createdRun.id);
+        console.log("Run Started:", createdRun.id);
 
         let currentRunId = createdRun.id;
         let completed = false;
@@ -225,7 +224,7 @@ exports.handleChat = async (req, res) => {
             if (status === "failed") {
                 const errorMsg = run.last_error?.message || "";
                 if (errorMsg.includes("rate_limit_exceeded")) {
-                    console.log("⏳ Rate limited — retrying in 10s...");
+                    console.log("Rate limited — retrying in 10s...");
                     await openai.beta.threads.runs.cancel(threadId, currentRunId).catch(() => {});
                     await new Promise(r => setTimeout(r, 10000));
                     const retryRun = await openai.beta.threads.runs.create(threadId, {
@@ -238,7 +237,7 @@ exports.handleChat = async (req, res) => {
             }
 
             if (status === "requires_action") {
-                console.log("🔍 Tool call required");
+                console.log("Tool call required");
                 const toolCalls = run.required_action.submit_tool_outputs.tool_calls;
 
                 const toolOutputs = await Promise.all(toolCalls.map(async (call) => {
@@ -269,15 +268,15 @@ exports.handleChat = async (req, res) => {
                         return {
                             tool_call_id: call.id,
                             output: JSON.stringify([{
-                                error: "❌ BHQ Store chỉ bán: 🎧 Tai nghe, 🖱️ Chuột, ⌨️ Bàn phím."
+                                error: "BHQ Store chỉ bán: Tai nghe, Chuột, Bàn phím."
                             }])
                         };
                     }
 
-                    console.log("🔍 Searching:", query);
+                    console.log("Searching:", query);
                     const products = await searchProducts(query, minPrice, maxPrice);
                     foundProducts = products;
-                    console.log(`✨ Found ${products.length} products`);
+                    console.log(`Found ${products.length} products`);
 
                     return {
                         tool_call_id: call.id,
@@ -299,7 +298,7 @@ exports.handleChat = async (req, res) => {
             }
         }
 
-        console.log("📨 Reply length:", lastMessage?.length);
+        console.log("Reply length:", lastMessage?.length);
 
         // 4. Cart action check
         let cartAction = null;
@@ -313,7 +312,7 @@ exports.handleChat = async (req, res) => {
             }
         }
 
-        console.log("✅ Sending products:", foundProducts.length);
+        console.log("Sending products:", foundProducts.length);
         res.status(200).json({
             reply: lastMessage,
             threadId,
@@ -322,7 +321,7 @@ exports.handleChat = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("❌ AI Error:", error.message);
+        console.error("AI Error:", error.message);
         res.status(500).json({
             error: "An error occurred with the AI assistant.",
             details: error.message
